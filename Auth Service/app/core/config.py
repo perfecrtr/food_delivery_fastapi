@@ -23,7 +23,9 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = False
 
-        @property
-        def database_url(self) -> str:
-            """Return full database URL"""
-            return f"postgresql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+    @property
+    def database_url(self) -> str:
+        """Return full database URL"""
+        return f"postgresql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+    
+settings = Settings()
