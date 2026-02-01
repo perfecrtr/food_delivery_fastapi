@@ -7,7 +7,7 @@ class PhoneNumber(BaseModel):
 
     @field_validator('value')
     @classmethod
-    def validate_phone_number(cls, value):
+    def validate_phone_number(cls, value: str) -> str:
         v = re.sub(r'[\s\-\(\)]', '', v)
         pattern = r'^\+375(29|25|44|33|24)\d{7}$'
 
