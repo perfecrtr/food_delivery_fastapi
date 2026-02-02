@@ -180,5 +180,31 @@ class RefreshTokenResponse(TokenResponse):
     pass
 
 
+class LogoutRequest(BaseModel):
+    """Request schema for logout endpoint"""
+    refresh_token: Optional[str] = None
+
+    @field_validator("refresh_token")
+    @classmethod
+    def validate_refresh_token(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+        if not value.strip():
+            raise ValueError("Refresh token cannot be empty if provided")
+        if len(value) < 20:
+            raise ValueError("Invalid refresh token format")
+        return value.strip()
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            }
+        }
+
+class LogoutResponse(BaseModel):
+    """Response schema for logout endpoint"""
+    success: bool
+    message: str
 
 
