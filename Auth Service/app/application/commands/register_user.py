@@ -50,14 +50,20 @@ class RegisterUserHandler:
             password_hasher = self.password_hasher,
             full_name=command.full_name
         )
+
+        user_dict = {
+            'phone_number': str(user.phone_number),
+            'hashed_password': user.hashed_password,
+            'full_name': user.full_name
+        }
         
-        saved_user = self.user_repository.create(user)
+        saved_user = self.user_repository.create(**user_dict)
         
         access_token = self.token_service.generate_access_token(
-            data={"sub": saved_user.id}
+            user_id=saved_user.id
         )
         refresh_token = self.token_service.generate_refresh_token(
-            data={"sub": saved_user.id}
+            user_id=saved_user.id   
         )
                 
         tokens = {

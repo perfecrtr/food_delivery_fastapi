@@ -15,3 +15,6 @@ class PhoneNumber(BaseModel):
             raise ValueError("Invalid phone number format")
         
         return value
+    
+    def __str__(self):
+        return self.value 

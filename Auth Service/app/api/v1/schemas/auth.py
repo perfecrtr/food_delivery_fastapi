@@ -4,6 +4,7 @@ API schemas for authentication endpoints
 
 from pydantic import BaseModel, field_validator
 from typing import Optional
+from datetime import datetime
 import re
 
 
@@ -103,6 +104,10 @@ class LoginResponse(TokenResponse):
     """Response schema for login endpoint"""
     pass
 
+class RegisterResponse(BaseModel):
+    """Response schema for registration"""
+    user_id : int
+    created_at: datetime
 
 class ChangePasswordRequest(BaseModel):
     """Request schema for changing password"""

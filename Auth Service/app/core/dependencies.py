@@ -15,6 +15,7 @@ from app.infrastructure.db.repository import UserRepository
 from app.infrastructure.db.models import UserModel
 from app.infrastructure.security.password_hasher import BcryptPasswordHasher
 from app.infrastructure.security.jwt_service import JWTService
+from app.application.commands.register_user import RegisterUserHandler
 
 
 
@@ -40,6 +41,17 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     Get user repository instance
     """
     return UserRepository(db)
+
+def get_register_handler(user_repository = Depends(get_user_repository),
+                         password_hasher = Depends(get_password_hasher),
+                         token_service = Depends(get_token_service)):
+    return(
+        RegisterUserHandler(
+        user_repository,
+        password_hasher,
+        token_service
+        )
+    )
 
 
 def get_current_user_id(

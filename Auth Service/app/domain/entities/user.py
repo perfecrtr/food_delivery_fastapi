@@ -23,7 +23,7 @@ class User:
         full_name: str
     ) -> 'User':
         password_hash = password_hasher.hash(password)
-        phone_vo = PhoneNumber(phone_number)
+        phone_vo = PhoneNumber(value=phone_number)
         return cls(
             id = None,
             phone_number=phone_vo,
