@@ -97,7 +97,6 @@ def get_optional_user_id(
 ) -> Optional[int]:
     """
     Get current user ID from JWT token (optional)
-    Returns None if token is not provided or invalid
     """
     if not credentials:
         return None
@@ -118,7 +117,6 @@ def get_optional_user(
 ) -> Optional[UserModel]:
     """
     Get current user from database (optional)
-    Returns None if user is not authenticated or not found
     """
     if not user_id:
         return None
