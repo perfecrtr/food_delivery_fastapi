@@ -44,3 +44,6 @@ class Password(BaseModel):
             raise ValueError(error_message)
         
         return value
+    
+    def __str__(self) -> str:
+        return self.value
