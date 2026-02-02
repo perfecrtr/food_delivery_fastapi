@@ -23,23 +23,21 @@ class UserLoginHandler:
         self.token_provider = token_provider
 
     async def handle(self, command: UserLoginCommand):
-        phone_number = PhoneNumber(command.phone_number)
+        phone_number = PhoneNumber(value=command.phone_number)
 
-        user = await self.user_repository.get_by_phone_number(phone_number)
+        user = await self.user_repository.get_by_phone_number(str(phone_number))
         if not user:
             raise ValueError("Authorization Error")
 
         if not self.password_hasher.verify(command.password, user.hashed_password):
             raise ValueError("Authorization Error")
+        
+        await self.user_repository.update_last_login(user.id)
 
-        access_token = self.token_provider.generate_access_token(user.id)
-        refresh_token = self.token_provider.generate_refresh_token(user.id)
+        access_token = str(self.token_provider.generate_access_token(user.id))
+        refresh_token = str(self.token_provider.generate_refresh_token(user.id))
 
         return {
             "access_token" : access_token,
-            "refresh_token" : refresh_token,
-            "user" : {
-                "id" : str(user.id),
-                "full_name": str(user.full_name)
-            }
+            "refresh_token" : refresh_token
         }

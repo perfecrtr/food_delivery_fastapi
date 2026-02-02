@@ -41,7 +41,7 @@ class RegisterUserHandler:
         password_vo = Password(value=command.password)
         normalized_phone = str(phone_vo.value)
         
-        if self.user_repository.exists_by_phone_number(normalized_phone):
+        if await self.user_repository.exists_by_phone_number(normalized_phone):
             raise ValueError(f"User with phone {normalized_phone} already exists")
         
         user = User.create(
@@ -57,7 +57,7 @@ class RegisterUserHandler:
             'full_name': user.full_name
         }
         
-        saved_user = self.user_repository.create(**user_dict)
+        saved_user = await self.user_repository.create(**user_dict)
         
         access_token = self.token_service.generate_access_token(
             user_id=saved_user.id

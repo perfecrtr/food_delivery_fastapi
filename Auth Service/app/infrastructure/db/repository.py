@@ -1,9 +1,11 @@
 """
 Repository pattern implementation for database operations
+Async version using SQLAlchemy 2.0 async API
 """
 
-from typing import Optional, Type, TypeVar, Generic, List
-from sqlalchemy.orm import Session
+from typing import Optional, Type, TypeVar, Generic, List, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
 
 from app.infrastructure.db.database import Base
@@ -14,26 +16,29 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 class BaseRepository(Generic[ModelType]):
     
-    def __init__(self, model: Type[ModelType], db: Session):
+    def __init__(self, model: Type[ModelType], db: AsyncSession):
         self.model = model
         self.db = db
     
-    def create(self, **kwargs) -> ModelType:
+    async def create(self, **kwargs) -> ModelType:
         instance = self.model(**kwargs)
         self.db.add(instance)
-        self.db.commit()
-        self.db.refresh(instance)
+        await self.db.commit()
+        await self.db.refresh(instance)
         return instance
     
-    def get_by_id(self, id: int) -> Optional[ModelType]:
-        return self.db.query(self.model).filter(self.model.id == id).first()
+    async def get_by_id(self, id: int) -> Optional[ModelType]:
+        stmt = select(self.model).where(self.model.id == id)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
     
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
-        return self.db.query(self.model).offset(skip).limit(limit).all()
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
+        stmt = select(self.model).offset(skip).limit(limit)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
     
-    def update(self, id: int, **kwargs) -> Optional[ModelType]:
- 
-        instance = self.get_by_id(id)
+    async def update(self, id: int, **kwargs) -> Optional[ModelType]:
+        instance = await self.get_by_id(id)
         if not instance:
             return None
         
@@ -41,40 +46,56 @@ class BaseRepository(Generic[ModelType]):
             if hasattr(instance, key):
                 setattr(instance, key, value)
         
-        self.db.commit()
-        self.db.refresh(instance)
+        await self.db.commit()
+        await self.db.refresh(instance)
         return instance
     
-    def delete(self, id: int) -> bool:
-        instance = self.get_by_id(id)
+    async def delete(self, id: int) -> bool:
+        instance = await self.get_by_id(id)
         if not instance:
             return False
         
-        self.db.delete(instance)
-        self.db.commit()
+        await self.db.delete(instance)
+        await self.db.commit()
         return True
     
-    def exists(self, id: int) -> bool:
-        return self.db.query(self.model).filter(self.model.id == id).first() is not None
+    async def exists(self, id: int) -> bool:
+        instance = await self.get_by_id(id)
+        return instance is not None
 
 
 class UserRepository(BaseRepository[UserModel]):
     """Repository for User operations"""
     
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         super().__init__(UserModel, db)
     
-    def get_by_phone_number(self, phone_number: str) -> Optional[UserModel]:
-        return self.db.query(UserModel).filter(
-            UserModel.phone_number == phone_number
-        ).first()
+    async def get_by_phone_number(self, phone_number: str) -> Optional[UserModel]:
+        stmt = select(UserModel).where(UserModel.phone_number == phone_number)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
     
-    def exists_by_phone_number(self, phone_number: str) -> bool:
-        return self.get_by_phone_number(phone_number) is not None
+    async def exists_by_phone_number(self, phone_number: str) -> bool:
+        user = await self.get_by_phone_number(phone_number)
+        return user is not None
     
-    def update_last_login(self, user_id: int) -> Optional[UserModel]:
+    async def update_last_login(self, user_id: int) -> Optional[UserModel]:
         from datetime import datetime
-        return self.update(user_id, last_login=datetime.utcnow())
+        return await self.update(user_id, last_login=datetime.utcnow())
     
-    def update_password(self, user_id: int, hashed_password: str) -> Optional[UserModel]:
-        return self.update(user_id, hashed_password=hashed_password)
+    async def update_password(self, user_id: int, hashed_password: str) -> Optional[UserModel]:
+        return await self.update(user_id, hashed_password=hashed_password)
+    
+    async def create_user(self, user: Any) -> UserModel:
+        """Create user from domain entity"""
+        user_model = UserModel(
+            phone_number=user.phone_number,
+            hashed_password=user.password_hash,
+            full_name=user.full_name,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
+        self.db.add(user_model)
+        await self.db.commit()
+        await self.db.refresh(user_model)
+        return user_model

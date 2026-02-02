@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.services.password_hasher import PasswordHasher
 from app.domain.services.token_service import TokenService
@@ -16,6 +16,7 @@ from app.infrastructure.db.models import UserModel
 from app.infrastructure.security.password_hasher import BcryptPasswordHasher
 from app.infrastructure.security.jwt_service import JWTService
 from app.application.commands.register_user import RegisterUserHandler
+from app.application.commands.login_user import UserLoginHandler
 
 
 
@@ -36,13 +37,13 @@ def get_token_service() -> TokenService:
     return JWTService()
 
 
-def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
     """
     Get user repository instance
     """
     return UserRepository(db)
 
-def get_register_handler(user_repository = Depends(get_user_repository),
+async def get_register_handler(user_repository = Depends(get_user_repository),
                          password_hasher = Depends(get_password_hasher),
                          token_service = Depends(get_token_service)):
     return(
@@ -53,8 +54,19 @@ def get_register_handler(user_repository = Depends(get_user_repository),
         )
     )
 
+async def get_login_handler(user_repository = Depends(get_user_repository),
+                         password_hasher = Depends(get_password_hasher),
+                         token_service = Depends(get_token_service)):
+    return(
+        UserLoginHandler(
+        user_repository,
+        password_hasher,
+        token_service
+        )
+    )
 
-def get_current_user_id(
+
+async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     token_service: TokenService = Depends(get_token_service)
 ) -> int:
@@ -83,14 +95,14 @@ def get_current_user_id(
         )
 
 
-def get_current_user(
+async def get_current_user(
     user_id: int = Depends(get_current_user_id),
     user_repository: UserRepository = Depends(get_user_repository)
 ) -> UserModel:
     """
     Get current user from database
     """
-    user = user_repository.get_by_id(user_id)
+    user = await user_repository.get_by_id(user_id)
     
     if not user:
         raise HTTPException(
@@ -101,7 +113,7 @@ def get_current_user(
     return user
 
 
-def get_optional_user_id(
+async def get_optional_user_id(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(
         HTTPBearer(auto_error=False)
     ),
@@ -123,7 +135,7 @@ def get_optional_user_id(
         return None
 
 
-def get_optional_user(
+async def get_optional_user(
     user_id: Optional[int] = Depends(get_optional_user_id),
     user_repository: UserRepository = Depends(get_user_repository)
 ) -> Optional[UserModel]:
@@ -133,5 +145,5 @@ def get_optional_user(
     if not user_id:
         return None
     
-    return user_repository.get_by_id(user_id)
+    return await user_repository.get_by_id(user_id)
 
