@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
 
-from domain.entities.user import UserEntity
+from domain.entities.user import User
 from domain.value_objects.phone_number import PhoneNumber
 from domain.value_objects.password import Password
 from infrastructure.db.repository import UserRepository
@@ -45,7 +45,7 @@ class RegisterUserHandler:
         if self.user_repository.exists_by_phone_number(normalized_phone):
             raise ValueError(f"User with phone {normalized_phone} already exists")
         
-        user = UserEntity.register(
+        user = User.create(
             phone_number=normalized_phone,
             password = password_vo,
             password_hasher = self.password_hasher,
