@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     db_pass: str
     db_name: str
 
+    redis_host: str
+    redis_port: int
+    redis_password: str
+    redis_db: int
+    redis_ttl: int
+
     jwt_secret_key: str
     jwt_algorithm: str
     access_token_expire_minutes: int
@@ -27,5 +33,9 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         """Return full database URL"""
         return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+    
+    def redis_url(self) -> str:
+        """Return full redis url"""
+        return f"redis://{self.redis_password}@{self.redis_host}:{self.redis_port}/{self.redis_db}"
     
 settings = Settings()
