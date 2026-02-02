@@ -63,7 +63,9 @@ async def login(
     request: LoginRequest,
     http_request: Request,
     handler: UserLoginHandler = Depends(get_login_handler),
-    rate_limiter: RateLimiter = Depends(get_login_rate_limiter)
+    rate_limiter: RateLimiter = Depends(get_login_rate_limiter),
+    token_service: TokenService = Depends(get_token_service),
+    token_store: TokenStore = Depends(get_token_store)
     ):
 
     client_ip = http_request.client.host if http_request.client else "unknown"
@@ -79,6 +81,15 @@ async def login(
     command = UserLoginCommand(phone_number=request.phone_number,
                                password=request.password)
     result = await handler.handle(command)
+
+    refresh_token_str = result.get("refresh_token")
+    payload = token_service.verify_refresh_token(refresh_token_str)
+    user_id = payload.get("user_id")
+    sid = payload.get("sid")
+
+    if user_id and sid:
+        await token_store.save_refresh_session(sid, user_id)
+
     return LoginResponse(
         access_token=result.get("access_token"),
         refresh_token=result.get("refresh_token")
