@@ -3,6 +3,7 @@ Authentication endpoints
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.exc import IntegrityError
 
 from app.application.commands.register_user import RegisterUserCommand, RegisterUserHandler
@@ -10,6 +11,7 @@ from app.application.commands.login_user import UserLoginCommand, UserLoginHandl
 from app.application.commands.change_password import UserChangePasswordCommand, UserChangePasswordHandler
 from app.infrastructure.redis.rate_limiter import RateLimiter
 from app.infrastructure.redis.token_store import TokenStore
+from datetime import datetime
 
 from app.api.v1.schemas.auth import (
     RegisterRequest,
@@ -19,7 +21,9 @@ from app.api.v1.schemas.auth import (
     ChangePasswordRequest,
     ChangePasswordResponse,
     RefreshTokenRequest,
-    RefreshTokenResponse
+    RefreshTokenResponse,
+    LogoutRequest,
+    LogoutResponse
 )
 from app.core.dependencies import (
     get_register_handler,
@@ -28,7 +32,8 @@ from app.core.dependencies import (
     get_redis,
     get_login_rate_limiter,
     get_token_service,
-    get_token_store
+    get_token_store,
+    security
 )
 from app.domain.services.password_hasher import PasswordHasher
 from app.domain.services.token_service import TokenService
@@ -145,4 +150,47 @@ async def refresh_tokens(
         access_token=str(access_token_vo),
         refresh_token=str(new_refresh_vo),
         token_type="bearer",
+    )
+
+@router.post("/logout", response_model=LogoutResponse, status_code=status.HTTP_200_OK)
+async def logout(
+    request: LogoutRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    token_service: TokenService = Depends(get_token_service),
+    token_store: TokenStore = Depends(get_token_store),
+):
+    
+    access_token = credentials.credentials
+
+    try:
+        access_payload = token_service.verify_access_token(access_token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+
+    jti = access_payload.get("jti")
+    exp = access_payload.get("exp")
+
+    ttl_seconds = None
+    if isinstance(exp, datetime):
+        remaining = int((exp - datetime.utcnow()).total_seconds())
+        ttl_seconds = max(1, remaining)
+
+    if jti:
+        await token_store.blacklist_access_token(jti, ttl_seconds)
+
+    if request.refresh_token:
+        try:
+            refresh_payload = token_service.verify_refresh_token(request.refresh_token)
+            sid = refresh_payload.get("sid")
+            if sid:
+                await token_store.delete_refresh_session(sid)
+        except ValueError:
+            pass
+
+    return LogoutResponse(
+        success=True,
+        message="Logged out successfully",
     )
