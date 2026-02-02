@@ -107,8 +107,9 @@ def get_token_store(
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    token_service: TokenService = Depends(get_token_service)
-) -> int:
+    token_service: TokenService = Depends(get_token_service),
+    token_store: TokenStore = Depends(get_token_store)
+    ) -> int:
     """
     Get current user ID from JWT token
     """
@@ -117,11 +118,18 @@ async def get_current_user_id(
     try:
         payload = token_service.verify_access_token(token)
         user_id = payload.get('user_id')
+        jti = payload.get('jti')
         
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token payload"
+            )
+        
+        if jti and await token_store.is_access_token_blacklisted(jti):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has been revoked",
             )
         
         return user_id
