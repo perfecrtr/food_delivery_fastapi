@@ -8,7 +8,7 @@ class PhoneNumber(BaseModel):
     @field_validator('value')
     @classmethod
     def validate_phone_number(cls, value: str) -> str:
-        v = re.sub(r'[\s\-\(\)]', '', v)
+        value = re.sub(r'[\s\-\(\)]', '', value)
         pattern = r'^\+375(29|25|44|33|24)\d{7}$'
 
         if not re.match(pattern, value):

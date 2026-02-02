@@ -1,17 +1,18 @@
 from pydantic import BaseModel, field_validator
 import re
-from typing import Optional, List
+from typing import Optional, List, ClassVar
 
 class Password(BaseModel):
     """Value Object to validate password"""
     value: str
 
-    MIN_LENGTH = 8
-    MAX_LENGTH = 30
-    REQUIRE_UPPERCASE = True
-    REQUIRE_LOWERCASE = True
-    REQUIRE_DIGITS = True
-    REQUIRE_SPECIAL = True
+    MIN_LENGTH: ClassVar[int] = 8
+    MAX_LENGTH: ClassVar[int] = 30
+    REQUIRE_UPPERCASE: ClassVar[bool] = True
+    REQUIRE_LOWERCASE: ClassVar[bool] = True
+    REQUIRE_DIGITS: ClassVar[bool] = True
+    REQUIRE_SPECIAL: ClassVar[bool] = True
+    ALLOWED_SPECIAL_CHARS: ClassVar[str] = r'[!@#$%^&*(),.?":{}|<>]'
 
     @field_validator('value')
     @classmethod

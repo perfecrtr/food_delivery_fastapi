@@ -1,4 +1,5 @@
 from pydantic import BaseModel, field_validator
+from typing import ClassVar
 from datetime import datetime
 
 class AccessToken(BaseModel):
@@ -7,7 +8,7 @@ class AccessToken(BaseModel):
     user_id: int
     expires_at: datetime
 
-    MIN_TOKEN_LENGTH = 20
+    MIN_TOKEN_LENGTH: ClassVar[int] = 20
 
     @field_validator('value')
     @classmethod
@@ -41,7 +42,7 @@ class RefreshToken(BaseModel):
     user_id: int
     expires_at: datetime
     
-    MIN_TOKEN_LENGTH = 20
+    MIN_TOKEN_LENGTH: ClassVar[int] = 20
     
     @field_validator('value')
     @classmethod
