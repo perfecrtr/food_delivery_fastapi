@@ -10,7 +10,7 @@ from domain.entities.user import User
 from domain.value_objects.phone_number import PhoneNumber
 from domain.value_objects.password import Password
 from infrastructure.db.repository import UserRepository
-from infrastructure.security.password_hasher import PasswordHasher
+from infrastructure.security.password_hasher import BcryptPasswordHasher
 from infrastructure.security.jwt_service import JWTService
 from domain.events import UserRegistered, UserLoggedIn
 
@@ -29,7 +29,7 @@ class RegisterUserHandler:
     def __init__(
         self,
         user_repository: UserRepository,
-        password_hasher: PasswordHasher,
+        password_hasher: BcryptPasswordHasher,
         token_service: JWTService
     ):
         self.user_repository = user_repository
