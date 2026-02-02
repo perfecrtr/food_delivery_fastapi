@@ -17,6 +17,7 @@ from app.infrastructure.security.password_hasher import BcryptPasswordHasher
 from app.infrastructure.security.jwt_service import JWTService
 from app.application.commands.register_user import RegisterUserHandler
 from app.application.commands.login_user import UserLoginHandler
+from app.application.commands.change_password import UserChangePasswordHandler
 
 
 
@@ -65,6 +66,14 @@ async def get_login_handler(user_repository = Depends(get_user_repository),
         )
     )
 
+async def get_change_password_handler(user_repository = Depends(get_user_repository),
+                         password_hasher = Depends(get_password_hasher)):
+    return(
+        UserChangePasswordHandler(
+        user_repository,
+        password_hasher
+        )
+    )
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),

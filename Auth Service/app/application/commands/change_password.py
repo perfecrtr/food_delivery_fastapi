@@ -21,28 +21,26 @@ class UserChangePasswordHandler:
 
     async def handle(self, command : UserChangePasswordCommand):
 
-        old_pass = Password(command.old_password)
-        new_pass = Password(command.new_password)
-        phone_number = PhoneNumber(command.phone)
+        old_pass = Password(value=command.old_password)
+        new_pass = Password(value=command.new_password)
+        phone_number = PhoneNumber(value=command.phone)
 
-        user = await self.user_repository.get_by_phone_number(phone_number)
+        user = await self.user_repository.get_by_phone_number(str(phone_number))
 
         if not user:
             raise ValueError("No such user")
 
-        if not self.password_hasher.verify(old_pass, user.hashed_password):
+        if not self.password_hasher.verify(str(old_pass), user.hashed_password):
             raise ValueError("Invalid password")
 
-        if new_pass == old_pass:
+        if new_pass.value == old_pass.value:
             raise ValueError("Same password")
 
-        new_password_hash = self.password_hasher.hash(new_pass)
-        user.hashed_password = new_password_hash
-
-        await self.user_repository.save(user)
+        new_password_hash = self.password_hasher.hash(str(new_pass))
+        await self.user_repository.update_password(user.id, new_password_hash)
 
         return {
-            "success" : True,
+            "success" : "success",
             "message" : "Пароль успешно изменен",
             "user_id" : str(user.id)
         }

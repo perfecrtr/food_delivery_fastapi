@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.application.commands.register_user import RegisterUserCommand, RegisterUserHandler
 from app.application.commands.login_user import UserLoginCommand, UserLoginHandler
+from app.application.commands.change_password import UserChangePasswordCommand, UserChangePasswordHandler
 
 from app.api.v1.schemas.auth import (
     RegisterRequest,
@@ -14,16 +15,12 @@ from app.api.v1.schemas.auth import (
     LoginRequest,
     LoginResponse,
     ChangePasswordRequest,
-    RefreshTokenRequest,
-    TokenResponse
+    ChangePasswordResponse
 )
 from app.core.dependencies import (
-    get_password_hasher,
-    get_token_service,
-    get_user_repository,
-    get_current_user_id,
     get_register_handler,
-    get_login_handler
+    get_login_handler,
+    get_change_password_handler
 )
 from app.domain.services.password_hasher import PasswordHasher
 from app.domain.services.token_service import TokenService
@@ -55,4 +52,17 @@ async def login(request: LoginRequest,
     return LoginResponse(
         access_token=result.get("access_token"),
         refresh_token=result.get("refresh_token")
+    )
+
+@router.put("/change_password", response_model=ChangePasswordResponse, status_code=status.HTTP_200_OK)
+async def change_password(request : ChangePasswordRequest,
+                          handler : UserChangePasswordHandler = Depends(get_change_password_handler)):
+    command = UserChangePasswordCommand(phone = request.phone_number,
+                                        old_password= request.old_password,
+                                        new_password= request.new_password)
+    result = await handler.handle(command)
+    return ChangePasswordResponse(
+        success = result.get("success"),
+        message = result.get("message"),
+        user_id = result.get("user_id")
     )
