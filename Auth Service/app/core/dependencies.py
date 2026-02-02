@@ -21,7 +21,7 @@ from app.application.commands.register_user import RegisterUserHandler
 from app.application.commands.login_user import UserLoginHandler
 from app.application.commands.change_password import UserChangePasswordHandler
 from app.infrastructure.redis.client import get_redis_client
-
+from app.infrastructure.redis.rate_limiter import RateLimiter, RateLimitConfig
 
 
 security = HTTPBearer()
@@ -78,8 +78,20 @@ async def get_change_password_handler(user_repository = Depends(get_user_reposit
         )
     )
 
+
 def get_redis() -> Redis:
     return get_redis_client()
+
+
+def get_login_rate_limiter(
+    redis: Redis = Depends(get_redis),
+) -> RateLimiter:
+    config = RateLimitConfig(
+        max_requests=5,
+        window_seconds=60,
+    )
+    return RateLimiter(redis, config)
+
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
