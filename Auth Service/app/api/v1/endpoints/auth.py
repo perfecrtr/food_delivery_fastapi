@@ -9,6 +9,7 @@ from app.application.commands.register_user import RegisterUserCommand, Register
 from app.application.commands.login_user import UserLoginCommand, UserLoginHandler
 from app.application.commands.change_password import UserChangePasswordCommand, UserChangePasswordHandler
 from app.infrastructure.redis.rate_limiter import RateLimiter
+from app.infrastructure.redis.token_store import TokenStore
 
 from app.api.v1.schemas.auth import (
     RegisterRequest,
@@ -16,14 +17,18 @@ from app.api.v1.schemas.auth import (
     LoginRequest,
     LoginResponse,
     ChangePasswordRequest,
-    ChangePasswordResponse
+    ChangePasswordResponse,
+    RefreshTokenRequest,
+    RefreshTokenResponse
 )
 from app.core.dependencies import (
     get_register_handler,
     get_login_handler,
     get_change_password_handler,
     get_redis,
-    get_login_rate_limiter
+    get_login_rate_limiter,
+    get_token_service,
+    get_token_store
 )
 from app.domain.services.password_hasher import PasswordHasher
 from app.domain.services.token_service import TokenService
@@ -86,4 +91,58 @@ async def change_password(request : ChangePasswordRequest,
         success = result.get("success"),
         message = result.get("message"),
         user_id = result.get("user_id")
+    )
+
+@router.post("/refresh", response_model=RefreshTokenResponse, status_code=status.HTTP_200_OK)
+async def refresh_tokens(
+    request: RefreshTokenRequest,
+    token_service: TokenService = Depends(get_token_service),
+    token_store: TokenStore = Depends(get_token_store)
+    ):
+
+    try:
+        payload = token_service.verify_refresh_token(request.refresh_token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail = str(e)
+        )
+    
+    user_id = payload.get("user_id")
+    sid = payload.get("sid")
+
+    if not user_id or not sid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token payload",
+        )
+
+    session_user_id = await token_store.get_refresh_session(sid)
+    if session_user_id is None or session_user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh session is invalid or expired",
+        )
+    
+    access_token_vo = token_service.generate_access_token(user_id)
+    new_refresh_vo = token_service.generate_refresh_token(user_id)
+
+    new_refresh_payload = token_service.verify_refresh_token(str(new_refresh_vo))
+    new_sid = new_refresh_payload.get("sid")
+    if not new_sid:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate refresh session id",
+        )
+    
+    await token_store.rotate_refresh_session(
+        old_sid=sid,
+        new_sid=new_sid,
+        user_id=user_id,
+    )
+
+    return RefreshTokenResponse(
+        access_token=str(access_token_vo),
+        refresh_token=str(new_refresh_vo),
+        token_type="bearer",
     )
