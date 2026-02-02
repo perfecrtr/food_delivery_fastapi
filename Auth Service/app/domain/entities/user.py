@@ -1,0 +1,46 @@
+from dataclasses import dataclass, field
+from app.domain.value_objects.phone_number import PhoneNumber
+from app.domain.value_objects.password import Password
+from app.infrastructure.security.password_hasher import PasswordHasher
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+
+
+
+@dataclass
+class User:
+    id: Optional[int] = None
+    full_name: Optional[str] = None
+    phone_number: PhoneNumber
+    hashed_password: str
+
+    @classmethod
+    def create(
+        cls,
+        phone_number: str,
+        password: Password,
+        password_hasher: PasswordHasher,
+        full_name: str
+    ) -> 'User':
+        password_hash = password_hasher.hash(password)
+        phone_vo = PhoneNumber(phone_number)
+        return cls(
+            id = None,
+            phone_number=phone_vo,
+            hashed_password=password_hash,
+            full_name = full_name
+        )
+
+    def verify_password(
+        self,
+        password : str,
+        password_hasher: PasswordHasher
+    ) -> bool:
+        return password_hasher.verify(password, self.hash_password)
+
+    def update_password(
+        self,
+        new_password : str,
+        password_hasher: PasswordHasher
+    ) -> None:
+        self.hash_password = password_hasher.hash(new_password)
