@@ -22,7 +22,8 @@ from app.application.commands.login_user import UserLoginHandler
 from app.application.commands.change_password import UserChangePasswordHandler
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.rate_limiter import RateLimiter, RateLimitConfig
-
+from app.infrastructure.redis.token_store import TokenStore, TokenStoreConfig
+from app.core.config import settings
 
 security = HTTPBearer()
 
@@ -91,6 +92,17 @@ def get_login_rate_limiter(
         window_seconds=60,
     )
     return RateLimiter(redis, config)
+
+def get_token_store(
+    redis: Redis = Depends(get_redis),
+) -> TokenStore:
+    refresh_ttl = settings.refresh_token_expire_days * 24 * 60 * 60
+    access_ttl = settings.access_token_expire_minutes * 60
+    config = TokenStoreConfig(
+        refresh_ttl=refresh_ttl,
+        access_ttl=access_ttl,
+    )
+    return TokenStore(redis, config)
 
 
 async def get_current_user_id(
