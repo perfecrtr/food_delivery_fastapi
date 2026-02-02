@@ -8,6 +8,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from redis.asyncio.client import Redis
+
 from app.domain.services.password_hasher import PasswordHasher
 from app.domain.services.token_service import TokenService
 from app.infrastructure.db.database import get_db
@@ -18,6 +20,7 @@ from app.infrastructure.security.jwt_service import JWTService
 from app.application.commands.register_user import RegisterUserHandler
 from app.application.commands.login_user import UserLoginHandler
 from app.application.commands.change_password import UserChangePasswordHandler
+from app.infrastructure.redis.client import get_redis_client
 
 
 
@@ -74,6 +77,9 @@ async def get_change_password_handler(user_repository = Depends(get_user_reposit
         password_hasher
         )
     )
+
+def get_redis() -> Redis:
+    return get_redis_client()
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
