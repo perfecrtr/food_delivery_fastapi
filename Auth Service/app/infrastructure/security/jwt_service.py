@@ -5,6 +5,7 @@ JWT implementation of TokenService
 import jwt
 from datetime import datetime, timedelta
 from typing import Dict, Optional
+from uuid import uuid4
 
 from app.core.config import settings
 from app.domain.services.token_service import TokenService
@@ -43,10 +44,13 @@ class JWTService(TokenService):
         )
         now = datetime.utcnow()
         
+        jti = str(uuid4())
+
         payload = {
             'sub': str(user_id),  
             'user_id': user_id,
             'type': 'access',
+            'jti': jti,
             'exp': int(expires_at.timestamp()),  
             'iat': int(now.timestamp())  
         }
@@ -75,10 +79,13 @@ class JWTService(TokenService):
         )
         now = datetime.utcnow()
         
+        sid = str(uuid4())
+
         payload = {
             'sub': str(user_id),  
             'user_id': user_id,
             'type': 'refresh',
+            'sid': sid,
             'exp': int(expires_at.timestamp()), 
             'iat': int(now.timestamp()) 
         }
