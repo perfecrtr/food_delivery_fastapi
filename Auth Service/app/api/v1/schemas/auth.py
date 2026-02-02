@@ -175,6 +175,10 @@ class ChangePasswordResponse(BaseModel):
     message: str
     user_id: int
 
+class RefreshTokenResponse(TokenResponse):
+    """Response schema for refresh endpoint"""
+    pass
+
 
 
 
