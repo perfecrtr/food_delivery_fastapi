@@ -36,7 +36,7 @@ class RegisterUserHandler:
         self.password_hasher = password_hasher
         self.token_service = token_service
     
-    async def execute(self, command: RegisterUserCommand) -> Tuple[UserEntity, dict]:
+    async def execute(self, command: RegisterUserCommand) -> Tuple[User, dict]:
         
         phone_vo = PhoneNumber(value=command.phone_number)
         password_vo = Password(value=command.password)
