@@ -19,7 +19,6 @@ class RegisterRequest(BaseModel):
         """Validate phone number format"""
         if not value:
             raise ValueError("Phone number cannot be empty")
-        # Basic validation - full validation will be in application layer
         cleaned = re.sub(r'[\s\-\(\)]', '', value)
         pattern = r'^\+375(29|25|44|33|24)\d{7}$'
         if not re.match(pattern, cleaned):
