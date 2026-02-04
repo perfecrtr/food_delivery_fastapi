@@ -23,6 +23,7 @@ from app.application.commands.change_password import UserChangePasswordHandler
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.rate_limiter import RateLimiter, RateLimitConfig
 from app.infrastructure.redis.token_store import TokenStore, TokenStoreConfig
+from app.infrastructure.messaging.producer import KafkaEventProducer
 from app.core.config import settings
 
 security = HTTPBearer()
@@ -48,14 +49,34 @@ async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserReposit
     """
     return UserRepository(db)
 
+_kafka_producer: Optional[KafkaEventProducer] = None
+
+def get_kafka_producer() -> KafkaEventProducer:
+    """
+    Get kafka event producer instance (must be started via lifecycle)
+    """
+    global _kafka_producer
+    if _kafka_producer is None:
+        raise RuntimeError("Kafka producer is not initialized. Ensure app startup completed.")
+    return _kafka_producer
+
+def set_kafka_producer(producer: KafkaEventProducer) -> None:
+    """
+    Set kafka producer instance (used by lifecycle)
+    """
+    global _kafka_producer
+    _kafka_producer = producer
+
 async def get_register_handler(user_repository = Depends(get_user_repository),
                          password_hasher = Depends(get_password_hasher),
-                         token_service = Depends(get_token_service)):
+                         token_service = Depends(get_token_service),
+                         kafka_producer: KafkaEventProducer = Depends(get_kafka_producer)):
     return(
         RegisterUserHandler(
         user_repository,
         password_hasher,
-        token_service
+        token_service,
+        kafka_producer
         )
     )
 
@@ -78,7 +99,6 @@ async def get_change_password_handler(user_repository = Depends(get_user_reposit
         password_hasher
         )
     )
-
 
 def get_redis() -> Redis:
     return get_redis_client()

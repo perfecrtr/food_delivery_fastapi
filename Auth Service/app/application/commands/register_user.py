@@ -12,6 +12,8 @@ from app.domain.value_objects.password import Password
 from app.infrastructure.db.repository import UserRepository
 from app.infrastructure.security.password_hasher import BcryptPasswordHasher
 from app.infrastructure.security.jwt_service import JWTService
+from app.infrastructure.messaging.producer import KafkaEventProducer
+from app.core.dependencies import get_kafka_producer
 
 
 @dataclass
@@ -29,11 +31,13 @@ class RegisterUserHandler:
         self,
         user_repository: UserRepository,
         password_hasher: BcryptPasswordHasher,
-        token_service: JWTService
+        token_service: JWTService,
+        kafka_producer: KafkaEventProducer
     ):
         self.user_repository = user_repository
         self.password_hasher = password_hasher
         self.token_service = token_service
+        self.kafka_producer = kafka_producer
     
     async def handle(self, command: RegisterUserCommand) -> Tuple[User, dict]:
         
@@ -58,6 +62,15 @@ class RegisterUserHandler:
         }
         
         saved_user = await self.user_repository.create(**user_dict)
+
+        if self.kafka_producer:
+            try:
+                await self.kafka_producer.publish_user_registered(
+                    user_id=saved_user.id,
+                    phone_number=saved_user.phone_number
+                )
+            except Exception as e:
+                ...
         
         access_token = self.token_service.generate_access_token(
             user_id=saved_user.id

@@ -24,6 +24,16 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
     refresh_token_expire_days: int
 
+    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
+    KAFKA_CLIENT_ID: str = "auth-service"
+    
+    KAFKA_PRODUCER_ACKS: str = "all"
+    KAFKA_PRODUCER_RETRIES: int = 3
+    KAFKA_PRODUCER_MAX_BLOCK_MS: int = 5000
+    KAFKA_PRODUCER_COMPRESSION_TYPE: str = "gzip"
+    
+    KAFKA_TOPIC_USER_REGISTERED: str = "user.registered"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
