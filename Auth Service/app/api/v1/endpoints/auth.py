@@ -205,3 +205,4 @@ async def logout(
         success=True,
         message="Logged out successfully",
     )
+
