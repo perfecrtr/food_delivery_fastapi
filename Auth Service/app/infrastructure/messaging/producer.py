@@ -62,7 +62,6 @@ class KafkaEventProducer:
             'bootstrap_servers': settings.KAFKA_BOOTSTRAP_SERVERS,
             'client_id': settings.KAFKA_CLIENT_ID,
             'acks': settings.KAFKA_PRODUCER_ACKS,
-            'retries': settings.KAFKA_PRODUCER_RETRIES,
             'compression_type': settings.KAFKA_PRODUCER_COMPRESSION_TYPE
         }
 
@@ -189,3 +188,4 @@ class KafkaEventProducer:
     def is_connected(self) -> bool:
         return self._producer is not None and not self._producer._closed
 
+kafka_event_producer = KafkaEventProducer()

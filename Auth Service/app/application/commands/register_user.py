@@ -13,8 +13,6 @@ from app.infrastructure.db.repository import UserRepository
 from app.infrastructure.security.password_hasher import BcryptPasswordHasher
 from app.infrastructure.security.jwt_service import JWTService
 from app.infrastructure.messaging.producer import KafkaEventProducer
-from app.core.dependencies import get_kafka_producer
-
 
 @dataclass
 class RegisterUserCommand:
@@ -32,7 +30,7 @@ class RegisterUserHandler:
         user_repository: UserRepository,
         password_hasher: BcryptPasswordHasher,
         token_service: JWTService,
-        kafka_producer: KafkaEventProducer
+        kafka_producer: Optional[KafkaEventProducer]
     ):
         self.user_repository = user_repository
         self.password_hasher = password_hasher
