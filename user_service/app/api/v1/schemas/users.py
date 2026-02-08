@@ -29,14 +29,13 @@ class GetUserProfileResponse(BaseModel):
     gender: Optional[Gender] = None
 
 class UpdateUserProfileRequest(BaseModel):
-    phone_number: str
     fullname: str
     email: Optional[str] = None
     address: Optional[str] = None
     birthday_date: Optional[date] = None
     gender: Optional[Gender] = None
 
-class UpdateUserProfileRequest(BaseModel):
+class UpdateUserProfileResponse(BaseModel):
     id: int
     phone_number: str
     fullname: str
