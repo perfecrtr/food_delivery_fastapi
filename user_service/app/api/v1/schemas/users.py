@@ -19,6 +19,14 @@ class CreateUserProfileResponse(BaseModel):
     fullname: str
     msg: str
 
+class GetUserProfileResponse(BaseModel):
+    id: int
+    phone_number: str
+    fullname: str
+    email: Optional[str] = None
+    address: Optional[str] = None
+    birthday_date: Optional[date] = None
+    gender: Optional[Gender] = None
 
-
+clas
 
