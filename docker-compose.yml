@@ -113,8 +113,7 @@ services:
     - ./Auth Service/.env
 
     volumes:
-      - ./Auth Service:/app/Auth Service:rw
-      - ./Auth Service/alembic/versions:/app/Auth Service/alembic/versions:rw
+      - ./Auth Service:/app:rw
     command: >
       sh -c "alembic upgrade head &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -127,6 +126,8 @@ services:
     container_name: user-service
     depends_on:
       postgres-user:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     ports:
       - "8002:8000"
