@@ -169,12 +169,14 @@ class KafkaEventProducer:
     async def publish_user_registered(
         self,
         user_id: int,
-        phone_number: str
+        phone_number: str,
+        fullname: str
     ) -> bool:
         
         event = UserRegisteredEvent(
             user_id=user_id,
-            phone_number=phone_number
+            phone_number=phone_number,
+            fullname=fullname
         )
 
         return await self.send_event(

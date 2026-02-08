@@ -65,7 +65,8 @@ class RegisterUserHandler:
             try:
                 await self.kafka_producer.publish_user_registered(
                     user_id=saved_user.id,
-                    phone_number=saved_user.phone_number
+                    phone_number=saved_user.phone_number,
+                    fullname=saved_user.full_name
                 )
             except Exception as e:
                 ...
