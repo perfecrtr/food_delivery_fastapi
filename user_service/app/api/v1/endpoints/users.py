@@ -37,4 +37,7 @@ async def get_user_profile(
     command = GetUserProfileQuery(id=user_id)
     result = await handler.handle(command)
     
+    if result is None:
+        raise
+
     return GetUserProfileResponse(**result)
