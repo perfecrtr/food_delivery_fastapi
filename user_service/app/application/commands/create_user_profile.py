@@ -16,13 +16,13 @@ class CreateUserProfileHandler:
 
     def __init__(
         self,
-        user_repository: UserProfileRepository
+        user_profile_repository: UserProfileRepository
     ):
-        self.user_repository = user_repository
+        self.user_profile_repository = user_profile_repository
 
     async def handle(self, command: CreateUserProfileCommand) -> dict:
         
-        if await self.user_repository.exists(command.id) or await self.user_repository.exists_by_phone_number(command.phone_number):
+        if await self.user_profile_repository.exists(command.id) or await self.user_profile_repository.exists_by_phone_number(command.phone_number):
             raise ValueError(f"User exists")
     
         user_profile = UserProfile(
@@ -31,7 +31,7 @@ class CreateUserProfileHandler:
             fullname = command.fullname
         )
 
-        saved_user_profile = await self.user_repository.create_user_profile(user_profile)
+        saved_user_profile = await self.user_profile_repository.create_user_profile(user_profile)
 
         return {
             "id": saved_user_profile.id,
