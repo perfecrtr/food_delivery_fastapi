@@ -4,7 +4,13 @@ RUN apk update && apk add --no-cache \
     postgresql-dev \
     gcc \
     musl-dev \
-    curl
+    curl \
+    zlib-dev \
+    jpeg-dev \
+    libffi-dev \
+    openssl-dev \
+    libc-dev \
+    linux-headers
 
 WORKDIR /app
 
