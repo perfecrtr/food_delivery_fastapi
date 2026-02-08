@@ -2,13 +2,15 @@
 User Profile endpoints
 """
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Path
 from app.api.v1.schemas.users import (
     CreateUserProfileRequest,
-    CreateUserProfileResponse
+    CreateUserProfileResponse,
+    GetUserProfileResponse
 )
 from app.application.commands.create_user_profile import CreateUserProfileCommand, CreateUserProfileHandler
-from app.core.dependencies import get_creating_profile_handler
+from app.application.queries.get_user_profile import GetUserProfileQuery, GetUserProfileHandler
+from app.core.dependencies import get_creating_profile_handler, get_get_user_profile_handler
 
 router = APIRouter(prefix="/user", tags=["user_profile"])
 
@@ -26,3 +28,13 @@ async def create_user_profile(request: CreateUserProfileRequest,
         fullname=result.get("fullname"),
         msg="User profile created successfully!"
     )
+
+@router.get("/get/{user_id}", response_model=GetUserProfileResponse, status_code=status.HTTP_200_OK)
+async def get_user_profile(
+    user_id: int = Path(..., title="user id", gt=0),
+    handler: GetUserProfileHandler = Depends(get_get_user_profile_handler)
+):
+    command = GetUserProfileQuery(id=user_id)
+    result = await handler.handle(command)
+    
+    return GetUserProfileResponse(**result)
