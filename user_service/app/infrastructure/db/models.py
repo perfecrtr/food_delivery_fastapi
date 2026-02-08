@@ -11,10 +11,10 @@ class UserProfileModel(Base):
     """User Profile model in database"""
     __tablename__ = "user_profiles"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     phone_number: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
-    fullname: Mapped[str] = mapped_column(String(100), nullable=False)
+    full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     address: Mapped[str] = mapped_column(String(200), nullable=True)
     birthday_date: Mapped[Optional[Date]] = mapped_column(Date, nullable=True)
     gender: Mapped[Optional[Gender]] = mapped_column(SQLEnum(Gender, native_enum=True), nullable=True)
