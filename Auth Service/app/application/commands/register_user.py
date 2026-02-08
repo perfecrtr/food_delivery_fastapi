@@ -50,13 +50,11 @@ class RegisterUserHandler:
             phone_number=normalized_phone,
             password = password_vo.value,
             password_hasher = self.password_hasher,
-            full_name=command.full_name
         )
 
         user_dict = {
             'phone_number': str(user.phone_number),
             'hashed_password': user.hashed_password,
-            'full_name': user.full_name
         }
         
         saved_user = await self.user_repository.create(**user_dict)
@@ -66,7 +64,7 @@ class RegisterUserHandler:
                 await self.kafka_producer.publish_user_registered(
                     user_id=saved_user.id,
                     phone_number=saved_user.phone_number,
-                    fullname=saved_user.full_name
+                    fullname=command.full_name
                 )
             except Exception as e:
                 ...

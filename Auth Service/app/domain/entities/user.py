@@ -12,23 +12,20 @@ class User:
     phone_number: PhoneNumber
     hashed_password: str
     id: Optional[int] = None
-    full_name: Optional[str] = None
 
     @classmethod
     def create(
         cls,
         phone_number: str,
         password: Password,
-        password_hasher: PasswordHasher,
-        full_name: str
+        password_hasher: PasswordHasher
     ) -> 'User':
         password_hash = password_hasher.hash(password)
         phone_vo = PhoneNumber(value=phone_number)
         return cls(
             id = None,
             phone_number=phone_vo,
-            hashed_password=password_hash,
-            full_name = full_name
+            hashed_password=password_hash
         )
 
     def verify_password(

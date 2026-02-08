@@ -91,7 +91,6 @@ class UserRepository(BaseRepository[UserModel]):
         user_model = UserModel(
             phone_number=user.phone_number,
             hashed_password=user.password_hash,
-            full_name=user.full_name,
             created_at=user.created_at,
             updated_at=user.updated_at
         )
