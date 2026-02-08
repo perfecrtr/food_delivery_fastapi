@@ -5,6 +5,7 @@ from app.application.commands.create_user_profile import CreateUserProfileHandle
 from app.application.queries.get_user_profile import GetUserProfileHandler
 from app.infrastructure.db.database import get_db
 from app.infrastructure.db.repository import UserProfileRepository
+from app.infrastructure.messaging.consumer import KafkaConsumer, kafka_consumer
 
 
 
@@ -27,3 +28,11 @@ async def get_get_user_profile_handler(user_profile_repository = Depends(get_use
             user_profile_repository
         )
     )
+
+def get_kafka_consumer() -> KafkaConsumer:
+    """
+    Get kafka event consumer instance (must be started via lifecycle)
+    """
+    if kafka_consumer is None:
+        raise RuntimeError("Kafka consumer is not initialized. Ensure app startup completed.")
+    return kafka_consumer
