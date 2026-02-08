@@ -29,7 +29,6 @@ from app.core.dependencies import (
     get_register_handler,
     get_login_handler,
     get_change_password_handler,
-    get_redis,
     get_login_rate_limiter,
     get_token_service,
     get_token_store,
