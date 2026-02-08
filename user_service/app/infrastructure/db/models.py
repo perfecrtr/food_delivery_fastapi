@@ -15,6 +15,7 @@ class UserProfileModel(Base):
     phone_number: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     fullname: Mapped[str] = mapped_column(String(100), nullable=False)
+    address: Mapped[str] = mapped_column(String(200), nullable=True)
     birthday_date: Mapped[Optional[Date]] = mapped_column(Date, nullable=True)
     gender: Mapped[Optional[Gender]] = mapped_column(SQLEnum(Gender, native_enum=True), nullable=True)
 
