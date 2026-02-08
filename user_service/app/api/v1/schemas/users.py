@@ -1,5 +1,5 @@
 """
-    API schemas for user profile endpoints
+    API schemas for user service endpoints
 """
 
 from pydantic import BaseModel
