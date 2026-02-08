@@ -11,23 +11,14 @@ class CreateUserProfileRequest(BaseModel):
     """Request schema for user profile creating"""
     id: int
     phone_number: str
-    full_name: str
+    fullname: str
 
 class CreateUserProfileResponse(BaseModel):
     id: int
+    phone_number: str
+    fullname: str
     msg: str
 
-class GetUserProfileRequest(BaseModel):
-    id: int
-
-class GetUserProfileResponse(BaseModel):
-    id: int
-    phone_number: str
-    full_name: str
-    email: Optional[str]
-    address: Optional[str]
-    birthday_date: Optional[date]
-    gender: Optional[Gender]
 
 
 
