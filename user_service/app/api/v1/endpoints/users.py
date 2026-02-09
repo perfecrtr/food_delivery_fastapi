@@ -19,7 +19,8 @@ router = APIRouter(prefix="/user", tags=["user_profile"])
 
 @router.post("/", response_model=CreateUserProfileResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_profile(request: CreateUserProfileRequest,
-                              handler: CreateUserProfileHandler = Depends(get_creating_profile_handler)):
+                              handler: CreateUserProfileHandler = Depends(get_creating_profile_handler)
+                              ) -> CreateUserProfileResponse:
     command = CreateUserProfileCommand(id=request.id,
                                        phone_number=request.phone_number,
                                        fullname = request.fullname)
@@ -33,10 +34,9 @@ async def create_user_profile(request: CreateUserProfileRequest,
     )
 
 @router.get("/{user_id}", response_model=GetUserProfileResponse, status_code=status.HTTP_200_OK)
-async def get_user_profile(
-    user_id: int = Path(..., title="user id", gt=0),
-    handler: GetUserProfileHandler = Depends(get_get_user_profile_handler)
-):
+async def get_user_profile(user_id: int = Path(..., title="user id", gt=0),
+                           handler: GetUserProfileHandler = Depends(get_get_user_profile_handler)
+                           ) -> GetUserProfileResponse:
     command = GetUserProfileQuery(id=user_id)
     result = await handler.handle(command)
     
@@ -46,11 +46,10 @@ async def get_user_profile(
     return GetUserProfileResponse(**result)
 
 @router.patch("/{user_id}", response_model=UpdateUserProfileResponse, status_code=status.HTTP_200_OK)
-async def update_user_profile(
-    request: UpdateUserProfileRequest,
-    handler: UpdateUserProfileHandler = Depends(get_update_user_profile_handler),
-    user_id: int = Path(..., title="user id", gt=0),
-):
+async def update_user_profile(request: UpdateUserProfileRequest,
+                              handler: UpdateUserProfileHandler = Depends(get_update_user_profile_handler),
+                              user_id: int = Path(..., title="user id", gt=0),
+                              ) -> UpdateUserProfileResponse:
     command = UpdateUserProfileCommand(id=user_id,
                                        fullname=request.fullname,
                                        email=request.email,
