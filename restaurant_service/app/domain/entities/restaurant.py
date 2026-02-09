@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
 from typing import Optional
-
+from datetime import datetime
 @dataclass
 class Restaurant:
     """
@@ -9,11 +9,13 @@ class Restaurant:
     """
     id: UUID
     name: str
-    description: Optional[str]
     address: str
-    coordinates: Optional[dict]
     contact_phone: str
     is_active: bool
     opening_hours: dict
-    tags: Optional[list]
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    description: Optional[str] = None
+    coordinates: Optional[dict] = None
+    tags: Optional[list] = None
+    updated_at: Optional[datetime] = None
     
