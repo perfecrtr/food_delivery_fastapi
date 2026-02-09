@@ -6,13 +6,23 @@ from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
 
-class CreateRestaurantRequest(BaseModel):
-    
+class RestaurantInfo(BaseModel):
+    id: UUID
     name: str
     address: str
     contact_phone: str
-    is_active: bool
-    opening_hourst: dict
+    opening_hours: dict
+    is_active: Optional[bool] = None
+    description: Optional[str] = None
+    coordinates: Optional[dict] = None
+    tags: Optional[list] = None
+
+class CreateRestaurantRequest(BaseModel):   
+    name: str
+    address: str
+    contact_phone: str
+    opening_hours: dict
+    is_active: Optional[bool] = None
     description: Optional[str] = None
     coordinates: Optional[dict] = None
     tags: Optional[list] = None
@@ -22,3 +32,10 @@ class CreateRestaurantResponse(BaseModel):
 
     id: UUID
     msg: str
+
+class GetAllRestrauntsRequest(BaseModel):
+    page: int = 0
+    per_page: int = 10
+
+class GetAllRestrauntsResponse(BaseModel):
+    restraunts: list[RestaurantInfo]
