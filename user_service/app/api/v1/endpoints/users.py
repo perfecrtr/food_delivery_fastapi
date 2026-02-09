@@ -17,7 +17,7 @@ from app.core.dependencies import get_creating_profile_handler, get_get_user_pro
 
 router = APIRouter(prefix="/user", tags=["user_profile"])
 
-@router.post("/create", response_model=CreateUserProfileResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CreateUserProfileResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_profile(request: CreateUserProfileRequest,
                               handler: CreateUserProfileHandler = Depends(get_creating_profile_handler)):
     command = CreateUserProfileCommand(id=request.id,
@@ -32,7 +32,7 @@ async def create_user_profile(request: CreateUserProfileRequest,
         msg="User profile created successfully!"
     )
 
-@router.get("/get/{user_id}", response_model=GetUserProfileResponse, status_code=status.HTTP_200_OK)
+@router.get("/{user_id}", response_model=GetUserProfileResponse, status_code=status.HTTP_200_OK)
 async def get_user_profile(
     user_id: int = Path(..., title="user id", gt=0),
     handler: GetUserProfileHandler = Depends(get_get_user_profile_handler)
@@ -45,7 +45,7 @@ async def get_user_profile(
 
     return GetUserProfileResponse(**result)
 
-@router.post("/user/{user_id}/update", response_model=UpdateUserProfileResponse, status_code=status.HTTP_200_OK)
+@router.patch("/{user_id}", response_model=UpdateUserProfileResponse, status_code=status.HTTP_200_OK)
 async def update_user_profile(
     request: UpdateUserProfileRequest,
     handler: UpdateUserProfileHandler = Depends(get_update_user_profile_handler),
