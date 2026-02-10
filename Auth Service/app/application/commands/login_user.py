@@ -5,6 +5,7 @@ from app.infrastructure.db.repository import UserRepository
 from app.domain.value_objects.password import Password
 from app.domain.value_objects.phone_number import PhoneNumber
 from app.infrastructure.security.password_hasher import BcryptPasswordHasher
+from app.core.exepctions import AuthException
 from app.domain.entities.user import User
 
 @dataclass
@@ -27,10 +28,10 @@ class UserLoginHandler:
 
         user = await self.user_repository.get_by_phone_number(str(phone_number))
         if not user:
-            raise ValueError("Authorization Error")
+            raise AuthException("Invalid phone number or password!")
 
         if not self.password_hasher.verify(command.password, user.hashed_password):
-            raise ValueError("Authorization Error")
+            raise AuthException("Invalid phone number or password!")
         
         await self.user_repository.update_last_login(user.id)
 
