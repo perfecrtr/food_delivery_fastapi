@@ -39,3 +39,11 @@ class GetAllRestrauntsRequest(BaseModel):
 
 class GetAllRestrauntsResponse(BaseModel):
     restraunts: list[RestaurantInfo]
+
+class UpdateRestaurantRequest(RestaurantInfo):
+    ...
+
+class UpdateRestaurantResponse(RestaurantInfo):
+    msg: str
+
+
