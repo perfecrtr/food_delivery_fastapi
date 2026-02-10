@@ -13,7 +13,7 @@ from app.api.v1.schemas.restaurants import (
 )
 from app.application.commands.create_restaurant import CreateRestaurantCommand, CreateRestaurantHandler
 from app.application.commands.update_restaurant import UpdateRestaurantCommand, UpdateRestaurantHandler
-from app.application.queries.get_all_restraunts import GetAllRestrauntsQuery, GetAllRestrauntsHandler
+from app.application.queries.get_restraunts import GetAllRestrauntsQuery, GetAllRestrauntsHandler
 from app.core.dependencies import get_creating_restaurant_handler, get_getting_all_restaurants_handler, get_updating_restaurant_handler
 
 router = APIRouter(prefix="/restaurant", tags=["restaurants"])
