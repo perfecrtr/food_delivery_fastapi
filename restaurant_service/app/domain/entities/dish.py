@@ -9,10 +9,10 @@ class Dish:
     """
     id: UUID
     restaurant_id: UUID
-    category_id: Optional[UUID]
-    name: str
-    description: Optional[str]
     price: float
-    weight: Optional[int]
-    is_available: bool
+    name: str
+    category_id: Optional[UUID] = None
+    description: Optional[str] = None
+    weight: Optional[int] = None
+    is_available: Optional[bool] = None
     

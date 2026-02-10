@@ -7,8 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 
 from app.infrastructure.db.database import Base
-from app.infrastructure.db.models import RestaurantModel
+from app.infrastructure.db.models import RestaurantModel, MenuCategoryModel, DishModel
 from app.domain.entities.restaurant import Restaurant
+from app.domain.entities.menu_category import MenuCategory
+from app.domain.entities.dish import Dish
 
 ModelType = TypeVar("ModelType",bound=Base)
 
@@ -87,3 +89,44 @@ class RestaurantRepository(BaseRepository[RestaurantModel]):
         await self.db.commit()
         await self.db.refresh(restaurant_model)
         return restaurant_model
+
+
+class MenuCategoryRepository(BaseRepository[MenuCategoryModel]):
+    """Repository for Restaurant operations"""
+    
+    def __init__(self, db: AsyncSession):
+        super().__init__(MenuCategoryModel, db)
+    
+    async def create_menu_category(self, menu_category: MenuCategory) -> MenuCategoryModel:
+        """Create user from domain entity"""
+        menu_category_model = MenuCategoryModel(
+            id = menu_category.id,
+            name = menu_category.name
+        )
+        self.db.add(menu_category_model)
+        await self.db.commit()
+        await self.db.refresh(menu_category_model)
+        return menu_category_model
+
+class DishRepository(BaseRepository[DishModel]):
+    """Repository for Restaurant operations"""
+    
+    def __init__(self, db: AsyncSession):
+        super().__init__(DishModel, db)
+    
+    async def create_dish(self, dish: Dish) -> DishModel:
+        """Create user from domain entity"""
+        dish_model = DishModel(
+            id = dish.id,
+            restaurant_id = dish.restaurant_id,
+            category_id = dish.category_id,
+            name = dish.name,
+            description = dish.description,
+            price = dish.price,
+            weight = dish.weight,
+            is_available = dish.is_available
+        )
+        self.db.add(dish_model)
+        await self.db.commit()
+        await self.db.refresh(dish_model)
+        return dish_model

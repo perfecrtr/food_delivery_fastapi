@@ -3,11 +3,13 @@ from fastapi import Depends
 
 from app.application.commands.create_restaurant import CreateRestaurantHandler
 from app.application.commands.create_menu_category import CreateMenuCategoryHandler
+from app.application.commands.create_dish import CreateDishHandler
 from app.application.commands.update_restaurant import UpdateRestaurantHandler
+from app.application.commands.update_dish import UpdateDishHandler
 from app.application.queries.get_restraunts import GetAllRestrauntsHandler
 from app.application.queries.get_menu_categories import GetMenuCategoriesHandler
 from app.infrastructure.db.database import get_db
-from app.infrastructure.db.repository import RestaurantRepository, MenuCategoryRepository
+from app.infrastructure.db.repository import RestaurantRepository, MenuCategoryRepository, DishRepository
 
 
 
@@ -22,6 +24,9 @@ async def get_menu_category_repository(db: AsyncSession = Depends(get_db)) -> Me
     Get user repository instance
     """
     return MenuCategoryRepository(db)
+
+async def get_dish_repository(db: AsyncSession = Depends(get_db)) -> DishRepository:
+    return DishRepository(db)
 
 async def get_creating_restaurant_handler(restaurant_repository = Depends(get_restaurant_repository)):
     return(
@@ -55,5 +60,19 @@ async def get_menu_categories_getting_handler(menu_category_repository = Depends
     return(
         GetMenuCategoriesHandler(
             menu_category_repository
+        )
+    )
+
+async def get_dish_creating_handler(dish_repository = Depends(get_dish_repository)):
+    return(
+        CreateDishHandler(
+            dish_repository
+        )
+    )
+
+async def get_dish_updating_handler(dish_repository = Depends(get_dish_repository)):
+    return(
+        UpdateDishHandler(
+            dish_repository
         )
     )
