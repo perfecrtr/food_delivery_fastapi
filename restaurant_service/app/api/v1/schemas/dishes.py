@@ -6,6 +6,15 @@ from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
 
+class DishInfo(BaseModel):
+    id: UUID
+    price: float
+    name: str
+    category_name: Optional[str] = None
+    description: Optional[str] = None
+    weight: Optional[int] = None
+    is_available: Optional[bool] = None
+
 class CreateDishRequest(BaseModel):   
     restaurant_id: UUID
     price: float

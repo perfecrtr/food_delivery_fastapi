@@ -8,6 +8,7 @@ from app.application.commands.update_restaurant import UpdateRestaurantHandler
 from app.application.commands.update_dish import UpdateDishHandler
 from app.application.queries.get_restraunts import GetAllRestrauntsHandler
 from app.application.queries.get_menu_categories import GetMenuCategoriesHandler
+from app.application.queries.get_restraunt_menu import GetRestaurantMenuHandler
 from app.infrastructure.db.database import get_db
 from app.infrastructure.db.repository import RestaurantRepository, MenuCategoryRepository, DishRepository
 
@@ -46,6 +47,13 @@ async def get_updating_restaurant_handler(restaurant_repository = Depends(get_re
     return(
         UpdateRestaurantHandler(
             restaurant_repository
+        )
+    )
+
+async def get_restaurant_menu_getting_handler(dish_repository = Depends(get_dish_repository)):
+    return(
+        GetRestaurantMenuHandler(
+            dish_repository
         )
     )
 

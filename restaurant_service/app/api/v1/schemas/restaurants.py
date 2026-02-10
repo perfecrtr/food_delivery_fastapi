@@ -5,6 +5,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
+from app.api.v1.schemas.dishes import DishInfo
 
 class RestaurantInfo(BaseModel):
     id: UUID
@@ -46,4 +47,8 @@ class UpdateRestaurantRequest(RestaurantInfo):
 class UpdateRestaurantResponse(RestaurantInfo):
     msg: str
 
+class GetRestaurantMenuRequest(BaseModel):
+    restaurant_id: UUID
 
+class GetRestaurantMenuResponse(BaseModel):
+    menu: list[DishInfo]

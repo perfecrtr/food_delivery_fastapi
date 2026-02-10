@@ -9,12 +9,20 @@ from app.api.v1.schemas.restaurants import (
     GetAllRestrauntsRequest,
     GetAllRestrauntsResponse,
     UpdateRestaurantRequest,
-    UpdateRestaurantResponse
+    UpdateRestaurantResponse,
+    GetRestaurantMenuRequest,
+    GetRestaurantMenuResponse
 )
 from app.application.commands.create_restaurant import CreateRestaurantCommand, CreateRestaurantHandler
 from app.application.commands.update_restaurant import UpdateRestaurantCommand, UpdateRestaurantHandler
 from app.application.queries.get_restraunts import GetAllRestrauntsQuery, GetAllRestrauntsHandler
-from app.core.dependencies import get_creating_restaurant_handler, get_getting_all_restaurants_handler, get_updating_restaurant_handler
+from app.application.queries.get_restraunt_menu import GetRestaurantMenuQuery, GetRestaurantMenuHandler
+from app.core.dependencies import (
+    get_creating_restaurant_handler, 
+    get_getting_all_restaurants_handler, 
+    get_updating_restaurant_handler,
+    get_restaurant_menu_getting_handler
+)
 
 router = APIRouter(prefix="/restaurant", tags=["restaurants"])
 
@@ -78,3 +86,20 @@ async def update_restaurant(
         raise
 
     return UpdateRestaurantResponse(**result)
+
+@router.get("/{restaurant_id}/menu", response_model=GetRestaurantMenuResponse, status_code=status.HTTP_200_OK)
+async def get_restraunt_menu(
+    request: GetRestaurantMenuRequest = Query(),
+    handler: GetRestaurantMenuHandler = Depends(get_restaurant_menu_getting_handler)
+) -> GetRestaurantMenuResponse:
+    
+    command = GetRestaurantMenuQuery(
+        restaurant_id = request.restaurant_id
+    )
+
+    result = await handler.handle(command)
+    
+    if result is None:
+        raise
+
+    return GetRestaurantMenuResponse(menu=result)
