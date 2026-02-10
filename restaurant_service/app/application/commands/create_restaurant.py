@@ -42,9 +42,9 @@ class CreateRestaurantHandler:
             tags=command.tags
         )
 
-        saved_restaurant_profile = await self.restaurant_repository.create_restaurant(restaurant)
+        saved_restaurant = await self.restaurant_repository.create_restaurant(restaurant)
 
         return {
-            "id": saved_restaurant_profile.id,
+            "id": saved_restaurant.id,
             "msg": "Restaurant successfully created!"
         }
