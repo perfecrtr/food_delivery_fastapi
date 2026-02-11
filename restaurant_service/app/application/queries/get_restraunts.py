@@ -31,11 +31,11 @@ class GetAllRestrauntsHandler:
             "id": restaurant.id,
             "name": restaurant.name,
             "description": restaurant.description,
-            "address": restaurant.address,
+            "address": restaurant.address.full_address,
             "coordinates": restaurant.coordinates,
-            "contact_phone": restaurant.contact_phone,
+            "contact_phone": str(restaurant.contact_phone),
             "is_active": restaurant.is_active,
-            "opening_hours": restaurant.opening_hours,
+            "schedule": restaurant.schedule,
             "tags": restaurant.tags
         }
         for restaurant in restaurants]

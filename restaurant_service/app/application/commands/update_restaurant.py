@@ -3,14 +3,19 @@ from uuid import UUID
 from typing import Optional
 from app.domain.repositories.restaurant_repository import RestaurantRepository
 from app.domain.entities.restaurant import Restaurant
+from app.domain.value_objects import Address
 
 @dataclass
 class UpdateRestaurantCommand:
     id: UUID
     name: str
-    address: str
+    city: str
+    street: str
+    house_number: str
+    building: str
+    floor: str
     contact_phone: str
-    opening_hours: dict
+    schedule: dict
     is_active: Optional[bool] = None
     description: Optional[str] = None
     coordinates: Optional[dict] = None
@@ -26,11 +31,17 @@ class UpdateRestaurantHandler:
 
     async def handle(self, command: UpdateRestaurantCommand) -> dict:
 
+        address = Address(city=command.city,
+                          street=command.street,
+                          house_number=command.house_number,
+                          building=command.building,
+                          floor=command.floor)
+
         restaurant = {
             'name': command.name,
-            'address': command.address,
+            'address': address.full_address,
             'contact_phone': command.contact_phone,
-            'opening_hours': command.opening_hours,
+            'schedule': command.schedule,
             'is_active': command.is_active,
             'description': command.description,
             'coordinates': command.coordinates,
@@ -42,9 +53,9 @@ class UpdateRestaurantHandler:
         return {
             'id': saved_restaurant.id,
             'name': command.name,
-            'address': command.address,
+            'address': address.full_address,
             'contact_phone': command.contact_phone,
-            'opening_hours': command.opening_hours,
+            'schedule': command.schedule,
             'is_active': command.is_active,
             'description': command.description,
             'coordinates': command.coordinates,

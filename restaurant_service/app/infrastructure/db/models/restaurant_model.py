@@ -18,7 +18,7 @@ class RestaurantModel(Base):
     coordinates: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     contact_phone: Mapped[str] = mapped_column(String(20), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    opening_hours: Mapped[dict] = mapped_column(JSON, nullable=False)
+    schedule: Mapped[dict] = mapped_column(JSON, nullable=False)
     tags: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
