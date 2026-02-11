@@ -7,7 +7,10 @@ from app.api.v1.schemas.dishes import (
 )
 from app.application.commands.create_dish import CreateDishCommand, CreateDishHandler
 from app.application.commands.update_dish import UpdateDishCommand, UpdateDishHandler
-from app.core.dependencies import get_dish_creating_handler, get_dish_updating_handler
+from app.api.dependencies.dishes import(
+    get_dish_creating_handler,
+    get_dish_updating_handler
+)
 
 router = APIRouter(prefix="/dishes", tags=["dishes"])
 

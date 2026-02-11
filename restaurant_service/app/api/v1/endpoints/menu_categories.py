@@ -7,7 +7,10 @@ from app.api.v1.schemas.menu_categories import (
 )
 from app.application.commands.create_menu_category import CreateMenuCategoryCommand, CreateMenuCategoryHandler
 from app.application.queries.get_menu_categories import GetMenuCategoriesQuery, GetMenuCategoriesHandler
-from app.core.dependencies import get_menu_category_creating_handler, get_menu_categories_getting_handler
+from app.api.dependencies.menu_categories import(
+    get_menu_category_creating_handler,
+    get_menu_categories_getting_handler
+)
 
 router = APIRouter(prefix="/menu_categories", tags=["menu_categories"])
 

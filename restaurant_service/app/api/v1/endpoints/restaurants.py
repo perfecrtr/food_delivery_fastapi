@@ -20,7 +20,7 @@ from app.application.commands.update_restaurant import UpdateRestaurantCommand, 
 from app.application.queries.get_restraunts import GetAllRestrauntsQuery, GetAllRestrauntsHandler
 from app.application.queries.get_restraunt_menu import GetRestaurantMenuQuery, GetRestaurantMenuHandler
 from app.application.queries.get_restraunt import GetRestaurantQuery, GetRestaurantHandler
-from app.core.dependencies import (
+from app.api.dependencies.restaurants import (
     get_creating_restaurant_handler, 
     get_getting_all_restaurants_handler, 
     get_updating_restaurant_handler,

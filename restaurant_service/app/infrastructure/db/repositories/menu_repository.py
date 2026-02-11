@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import List
+from typing import List, Dict
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -12,7 +12,7 @@ class SQLAlchemyMenuRepository(MenuRepository):
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_restaurant_menu(self, restaurant_id: UUID) -> List[Dish]:
+    async def get_restaurant_menu(self, restaurant_id: UUID) -> List[Dict]:
         stmt = select(
             DishModel.id,
             MenuCategoryModel.name.label("category_name"),

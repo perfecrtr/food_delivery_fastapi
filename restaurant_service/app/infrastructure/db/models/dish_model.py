@@ -12,7 +12,7 @@ class DishModel(Base):
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, index=True)
     restaurant_id: Mapped[UUID] = mapped_column(ForeignKey("restaurants.id"), nullable=False)
-    category_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("menu_categories.id"), nullable=True)
+    category_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("menu_categories.id", ondelete="SET NULL"), nullable=True)
     name: Mapped[str] = mapped_column(String(30), unique=False, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     price: Mapped[float] = mapped_column(DECIMAL(10,2), nullable=False)

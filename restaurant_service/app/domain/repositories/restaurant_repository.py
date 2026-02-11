@@ -18,7 +18,7 @@ class RestaurantRepository(ABC):
         pass
 
     @abstractmethod
-    async def update(self, id: UUID, **kwargs) -> Restaurant | None:
+    async def update(self, restaurant_id: UUID, **kwargs) -> Restaurant | None:
         pass
 
     @abstractmethod
