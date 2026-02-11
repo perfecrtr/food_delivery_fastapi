@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 from typing import Optional
-from app.infrastructure.db.repository import RestaurantRepository
+from app.domain.repositories.restaurant_repository import RestaurantRepository
 from app.domain.entities.restaurant import Restaurant
 
 @dataclass
@@ -20,9 +20,9 @@ class UpdateRestaurantHandler:
 
     def __init__(
         self,
-        restaurant_repository: RestaurantRepository
+        repo: RestaurantRepository
     ):
-        self.restaurant_repository = restaurant_repository
+        self.repo = repo
 
     async def handle(self, command: UpdateRestaurantCommand) -> dict:
 
@@ -37,7 +37,7 @@ class UpdateRestaurantHandler:
             'tags': command.tags
         }
 
-        saved_restaurant = await self.restaurant_repository.update(command.id, **restaurant)
+        saved_restaurant = await self.repo.update(command.id, **restaurant)
 
         return {
             'id': saved_restaurant.id,

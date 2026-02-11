@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from app.infrastructure.db.repository import DishRepository
+from app.domain.repositories.menu_repository import MenuRepository
 
 @dataclass
 class GetRestaurantMenuQuery:
@@ -12,13 +12,13 @@ class GetRestaurantMenuHandler:
 
     def __init__(
         self,
-        dish_repository: DishRepository
+        repo: MenuRepository
     ):
-        self.dish_repository = dish_repository
+        self.repo = repo
 
     async def handle(self, query: GetRestaurantMenuQuery) -> list[dict]:
         
-        menu_items = await self.dish_repository.get_menu_by_restaurant_id(query.restaurant_id)
+        menu_items = await self.repo.get_restaurant_menu(query.restaurant_id)
 
         if not menu_items:
             raise

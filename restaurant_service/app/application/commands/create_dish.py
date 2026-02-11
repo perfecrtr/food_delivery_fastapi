@@ -7,7 +7,7 @@ from typing import Optional
 from uuid import uuid4, UUID
 from datetime import datetime
 from app.domain.entities.dish import Dish
-from app.infrastructure.db.repository import DishRepository
+from app.domain.repositories.dish_repository import DishRepository
 
 @dataclass
 class CreateDishCommand:
@@ -23,9 +23,9 @@ class CreateDishHandler:
 
     def __init__(
         self,
-        dish_repository: DishRepository
+        repo: DishRepository
     ):
-        self.dish_repository = dish_repository
+        self.repo = repo
 
     async def handle(self, command: CreateDishCommand) -> dict:
 
@@ -40,7 +40,7 @@ class CreateDishHandler:
             is_available=command.is_available
         )
 
-        saved_dish = await self.dish_repository.create_dish(dish)
+        saved_dish = await self.repo.create(dish)
 
         return {
             "id": saved_dish.id,

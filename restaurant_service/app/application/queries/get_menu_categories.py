@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from app.infrastructure.db.repository import MenuCategoryRepository
+from app.domain.repositories.menu_category_repository import MenuCategoryRepository
 
 @dataclass
 class GetMenuCategoriesQuery:
@@ -12,16 +12,16 @@ class GetMenuCategoriesHandler:
 
     def __init__(
         self,
-        menu_category_repository: MenuCategoryRepository
+        repo: MenuCategoryRepository
     ):
-        self.menu_category_repository = menu_category_repository
+        self.repo = repo
 
     async def handle(self, query: GetMenuCategoriesQuery) -> Optional[dict]:
         
         offset = query.page * query.per_page
 
-        menu_categories = await self.menu_category_repository.get_all(
-            skip=offset, 
+        menu_categories = await self.repo.get_menu_categories(
+            offset=offset, 
             limit=query.per_page)
 
         if not menu_categories:

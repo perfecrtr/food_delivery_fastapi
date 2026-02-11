@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from app.infrastructure.db.repository import RestaurantRepository
+from app.domain.repositories.restaurant_repository import RestaurantRepository
 
 @dataclass
 class GetRestaurantQuery:
@@ -12,13 +12,13 @@ class GetRestaurantHandler:
 
     def __init__(
         self,
-        restraunt_repository: RestaurantRepository
+        repo: RestaurantRepository
     ):
-        self.restraunt_repository = restraunt_repository
+        self.repo = repo
 
     async def handle(self, query: GetRestaurantQuery) -> Optional[dict]:
         
-        restaurant = await self.restraunt_repository.get_by_id(query.id)
+        restaurant = await self.repo.get_by_id(query.id)
 
         if not restaurant:
             raise

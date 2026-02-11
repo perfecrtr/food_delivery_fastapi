@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from app.infrastructure.db.repository import RestaurantRepository
+from app.domain.repositories.restaurant_repository import RestaurantRepository
 
 @dataclass
 class GetAllRestrauntsQuery:
@@ -12,16 +12,16 @@ class GetAllRestrauntsHandler:
 
     def __init__(
         self,
-        restraunt_repository: RestaurantRepository
+        repo: RestaurantRepository
     ):
-        self.restraunt_repository = restraunt_repository
+        self.repo = repo
 
     async def handle(self, query: GetAllRestrauntsQuery) -> Optional[dict]:
         
         offset = query.page * query.per_page
 
-        restaurants = await self.restraunt_repository.get_all(
-            skip=offset, 
+        restaurants = await self.repo.get_restaurants(
+            offset=offset, 
             limit=query.per_page)
 
         if not restaurants:

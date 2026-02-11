@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 from app.domain.entities.menu_category import MenuCategory
-from app.infrastructure.db.repository import MenuCategoryRepository
+from app.domain.repositories.menu_category_repository import MenuCategoryRepository
 
 @dataclass
 class CreateMenuCategoryCommand:
@@ -15,9 +15,9 @@ class CreateMenuCategoryHandler:
 
     def __init__(
         self,
-        menu_category_repository: MenuCategoryRepository
+        repo: MenuCategoryRepository
     ):
-        self.menu_category_repository = menu_category_repository
+        self.repo = repo
 
     async def handle(self, command: CreateMenuCategoryCommand) -> dict:
 
@@ -26,7 +26,7 @@ class CreateMenuCategoryHandler:
             name=command.name
         )
 
-        saved_menu_category = await self.menu_category_repository.create_menu_category(menu_category)
+        saved_menu_category = await self.repo.create(menu_category)
 
         return {
             "id": saved_menu_category.id,

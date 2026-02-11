@@ -11,24 +11,29 @@ from app.application.queries.get_menu_categories import GetMenuCategoriesHandler
 from app.application.queries.get_restraunt_menu import GetRestaurantMenuHandler
 from app.application.queries.get_restraunt import GetRestaurantHandler
 from app.infrastructure.db.database import get_db
-from app.infrastructure.db.repository import RestaurantRepository, MenuCategoryRepository, DishRepository
+from app.infrastructure.db.repositories.restaurant_repository import SQLAlchemyRestaurantRepository
+from app.infrastructure.db.repositories.menu_category_repository import SQLAlchemyMenuCategoryRepository
+from app.infrastructure.db.repositories.dish_repository import SQLAlchemyDishRepository
+from app.infrastructure.db.repositories.menu_repository import SQLAlchemyMenuRepository
 
 
-
-async def get_restaurant_repository(db: AsyncSession = Depends(get_db)) -> RestaurantRepository:
+async def get_restaurant_repository(db: AsyncSession = Depends(get_db)) -> SQLAlchemyRestaurantRepository:
     """
     Get user repository instance
     """
-    return RestaurantRepository(db)
+    return SQLAlchemyRestaurantRepository(db)
 
-async def get_menu_category_repository(db: AsyncSession = Depends(get_db)) -> MenuCategoryRepository:
+async def get_menu_category_repository(db: AsyncSession = Depends(get_db)) -> SQLAlchemyMenuCategoryRepository:
     """
     Get user repository instance
     """
-    return MenuCategoryRepository(db)
+    return SQLAlchemyMenuCategoryRepository(db)
 
-async def get_dish_repository(db: AsyncSession = Depends(get_db)) -> DishRepository:
-    return DishRepository(db)
+async def get_dish_repository(db: AsyncSession = Depends(get_db)) -> SQLAlchemyDishRepository:
+    return SQLAlchemyDishRepository(db)
+
+async def get_menu_repository(db: AsyncSession = Depends(get_db)) -> SQLAlchemyMenuRepository:
+    return SQLAlchemyMenuRepository(db)
 
 async def get_creating_restaurant_handler(restaurant_repository = Depends(get_restaurant_repository)):
     return(
@@ -58,10 +63,10 @@ async def get_updating_restaurant_handler(restaurant_repository = Depends(get_re
         )
     )
 
-async def get_restaurant_menu_getting_handler(dish_repository = Depends(get_dish_repository)):
+async def get_restaurant_menu_getting_handler(repo = Depends(get_menu_repository)):
     return(
         GetRestaurantMenuHandler(
-            dish_repository
+            repo
         )
     )
 

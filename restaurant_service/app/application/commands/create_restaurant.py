@@ -7,7 +7,7 @@ from typing import Optional
 from uuid import uuid4
 from datetime import datetime
 from app.domain.entities.restaurant import Restaurant
-from app.infrastructure.db.repository import RestaurantRepository
+from app.domain.repositories.restaurant_repository import RestaurantRepository
 
 @dataclass
 class CreateRestaurantCommand:
@@ -24,9 +24,9 @@ class CreateRestaurantHandler:
 
     def __init__(
         self,
-        restaurant_repository: RestaurantRepository
+        repo: RestaurantRepository
     ):
-        self.restaurant_repository = restaurant_repository
+        self.repo= repo
 
     async def handle(self, command: CreateRestaurantCommand) -> dict:
 
@@ -42,7 +42,7 @@ class CreateRestaurantHandler:
             tags=command.tags
         )
 
-        saved_restaurant = await self.restaurant_repository.create_restaurant(restaurant)
+        saved_restaurant = await self.repo.create(restaurant)
 
         return {
             "id": saved_restaurant.id,

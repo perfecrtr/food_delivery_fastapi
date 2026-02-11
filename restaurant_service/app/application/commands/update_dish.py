@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 from typing import Optional
-from app.infrastructure.db.repository import DishRepository
+from app.domain.repositories.dish_repository import DishRepository
 from app.domain.entities.dish import Dish
 
 @dataclass
@@ -19,9 +19,9 @@ class UpdateDishHandler:
 
     def __init__(
         self,
-        dish_repository: DishRepository
+        repo: DishRepository
     ):
-        self.dish_repository = dish_repository
+        self.repo = repo
 
     async def handle(self, command: UpdateDishCommand) -> dict:
 
@@ -35,7 +35,7 @@ class UpdateDishHandler:
             'is_available': command.is_available
         }
 
-        saved_dish = await self.dish_repository.update(command.id, **dish)
+        saved_dish = await self.repo.update(command.id, **dish)
 
         return {
             'id': saved_dish.id,

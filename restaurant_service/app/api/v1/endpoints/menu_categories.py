@@ -25,7 +25,7 @@ async def create_menu_category(
     return CreateMenuCategoryResonse(**result)
 
 @router.get("/", response_model=GetMenuCategoriesResponse, status_code=status.HTTP_200_OK)
-async def get_restraunts(
+async def get_menu_categories(
     request: GetMenuCategoriesRequest = Query(),
     handler: GetMenuCategoriesHandler = Depends(get_menu_categories_getting_handler)
 ) -> GetMenuCategoriesResponse:
