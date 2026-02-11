@@ -5,6 +5,7 @@ Repository pattern implementation for database operations
 from typing import TypeVar, Generic, Type, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
+from uuid import UUID
 
 from app.infrastructure.db.database import Base
 from app.infrastructure.db.models import RestaurantModel, MenuCategoryModel, DishModel
@@ -130,3 +131,23 @@ class DishRepository(BaseRepository[DishModel]):
         await self.db.commit()
         await self.db.refresh(dish_model)
         return dish_model
+    
+    async def get_menu_by_restaurant_id(self, restaurant_id: UUID) -> List[dict]:
+        stmt = select(
+            DishModel.id,
+            MenuCategoryModel.name.label("category_name"),
+            DishModel.name,
+            DishModel.price,
+            DishModel.description,
+            DishModel.weight,
+            DishModel.is_available
+        ).join(
+            MenuCategoryModel,
+            DishModel.category_id==MenuCategoryModel.id,
+            isouter=True
+        ).where(
+            DishModel.restaurant_id == restaurant_id
+        )
+        result = await self.db.execute(stmt)
+        return [dict(row._mapping) for row in result.all()]
+    

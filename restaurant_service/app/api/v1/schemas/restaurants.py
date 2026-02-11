@@ -41,6 +41,12 @@ class GetAllRestrauntsRequest(BaseModel):
 class GetAllRestrauntsResponse(BaseModel):
     restraunts: list[RestaurantInfo]
 
+class GetRestaurantRequest(BaseModel):
+    id: UUID
+
+class GetRestaurantResponse(RestaurantInfo):
+    ...
+
 class UpdateRestaurantRequest(RestaurantInfo):
     ...
 

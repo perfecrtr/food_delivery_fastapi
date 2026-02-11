@@ -11,17 +11,21 @@ from app.api.v1.schemas.restaurants import (
     UpdateRestaurantRequest,
     UpdateRestaurantResponse,
     GetRestaurantMenuRequest,
-    GetRestaurantMenuResponse
+    GetRestaurantMenuResponse,
+    GetRestaurantRequest,
+    GetRestaurantResponse
 )
 from app.application.commands.create_restaurant import CreateRestaurantCommand, CreateRestaurantHandler
 from app.application.commands.update_restaurant import UpdateRestaurantCommand, UpdateRestaurantHandler
 from app.application.queries.get_restraunts import GetAllRestrauntsQuery, GetAllRestrauntsHandler
 from app.application.queries.get_restraunt_menu import GetRestaurantMenuQuery, GetRestaurantMenuHandler
+from app.application.queries.get_restraunt import GetRestaurantQuery, GetRestaurantHandler
 from app.core.dependencies import (
     get_creating_restaurant_handler, 
     get_getting_all_restaurants_handler, 
     get_updating_restaurant_handler,
-    get_restaurant_menu_getting_handler
+    get_restaurant_menu_getting_handler,
+    get_restaurant_getting_handler
 )
 
 router = APIRouter(prefix="/restaurant", tags=["restaurants"])
@@ -61,6 +65,22 @@ async def get_restraunts(
         raise
 
     return GetAllRestrauntsResponse(restraunts=result)
+
+@router.get("/{id}", response_model=GetRestaurantResponse, status_code=status.HTTP_200_OK)
+async def get_restraunt(
+    request: GetRestaurantRequest = Query(),
+    handler: GetRestaurantHandler = Depends(get_restaurant_getting_handler)
+):
+    command = GetRestaurantQuery(
+        id=request.id
+    )
+
+    result = await handler.handle(command)
+    
+    if result is None:
+        raise
+
+    return GetRestaurantResponse(**result)
 
 @router.patch("/", response_model=UpdateRestaurantResponse, status_code=status.HTTP_200_OK)
 async def update_restaurant(
