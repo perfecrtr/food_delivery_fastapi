@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 from typing import Optional, Any, Dict
 from datetime import datetime
-from app.domain.value_objects import Address, PhoneNumber, WorkingSchedule
+from app.domain.value_objects import Address, PhoneNumber
 
 @dataclass
 class Restaurant:

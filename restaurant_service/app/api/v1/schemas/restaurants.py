@@ -2,9 +2,9 @@
     API Schemas for restaurants operations restaurant service endpoints
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, UUID4, ConfigDict
 from uuid import UUID
-from typing import Optional, Dict
+from typing import Optional, List
 from enum import Enum
 from app.api.v1.schemas.dishes import DishInfo
 
@@ -83,3 +83,38 @@ class GetRestaurantMenuRequest(BaseModel):
 
 class GetRestaurantMenuResponse(BaseModel):
     menu: list[DishInfo]
+
+class ValidationItemRequest(BaseModel):
+    dish_id: UUID4
+    quantity: int
+
+class ValidateOrderRequest(BaseModel):
+    items: List[ValidationItemRequest]
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "items": [
+                    {
+                        "dish_id": "123e4567-e89b-12d3-a456-426614174000",
+                        "quantity": 2
+                    },
+                    {
+                        "dish_id": "987fcdeb-51a3-43b7-a456-426614174222",
+                        "quantity": 1
+                    }
+                ]
+            }
+        }
+    )
+
+class ValidatedItemResponse(BaseModel):
+    dish_id: UUID4
+    name: str
+    price: float
+    quantity: int
+
+class ValidateOrderResponse(BaseModel):
+    is_valid: bool
+    validated_items: List[ValidatedItemResponse]
+    errors: List
+

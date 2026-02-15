@@ -13,5 +13,5 @@ class OrderItem:
 
     @property
     def total(self) -> Money:
-        amount = self.price * self.quantity
-        return Money(amount)
+        amount = self.price.amount * self.quantity
+        return Money(amount=amount)

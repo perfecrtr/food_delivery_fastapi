@@ -15,9 +15,9 @@ class OrderRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_user_orders(self, user_id: UUID) -> List[Order]:
+    async def get_user_orders(self, user_id: int) -> List[Order]:
         pass
 
     @abstractmethod
-    async def update():
+    async def update(self, order_data: Order) -> Order:
         pass

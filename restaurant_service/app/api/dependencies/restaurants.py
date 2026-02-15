@@ -8,6 +8,7 @@ from app.infrastructure.db.repositories.restaurant_repository import (
 )
 from app.application.commands.create_restaurant import CreateRestaurantHandler
 from app.application.commands.update_restaurant import UpdateRestaurantHandler
+from app.application.commands.validate_order import ValidateOrderHandler
 from app.application.queries.get_restraunts import GetAllRestrauntsHandler
 from app.application.queries.get_restraunt import GetRestaurantHandler
 from app.application.queries.get_restraunt_menu import GetRestaurantMenuHandler
@@ -55,3 +56,8 @@ async def get_restaurant_menu_getting_handler(
     repo: MenuRepository = Depends(get_menu_repository),
 ) -> GetRestaurantMenuHandler:
     return GetRestaurantMenuHandler(repo)
+
+async def get_order_validating_handler(
+    repo: MenuRepository = Depends(get_menu_repository),
+) -> ValidateOrderHandler:
+    return ValidateOrderHandler(repo=repo)

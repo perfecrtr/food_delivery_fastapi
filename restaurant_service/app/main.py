@@ -6,9 +6,9 @@ from app.api.v1.endpoints.dishes import router as dish_router
 
 app = FastAPI()
 
-app.include_router(restraunt_router, prefix="/api/v1/restraunt")
-app.include_router(menu_category_router, prefix="/api/v1/restraunt")
-app.include_router(dish_router, prefix="/api/v1/restraunt")
+app.include_router(restraunt_router, prefix="/api/v1")
+app.include_router(menu_category_router, prefix="/api/v1")
+app.include_router(dish_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

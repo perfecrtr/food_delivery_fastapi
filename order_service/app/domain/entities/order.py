@@ -11,7 +11,7 @@ from app.domain.enums import OrderStatusEnum
 class Order:
     id: UUID
     restaurant_id: UUID
-    user_id: UUID
+    user_id: int
     items: List[OrderItem]
     delivery_address: Address
     total_price: Money
@@ -25,7 +25,7 @@ class Order:
         self._recalculate_total()
 
     def _recalculate_total(self):
-        total = sum(item.total.amount for item in self.items)
+        total = sum(float(item.total.amount) for item in self.items)
         self.total_price = Money(amount=total)
 
     def add_item(self, item: OrderItem):

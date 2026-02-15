@@ -1,5 +1,6 @@
 from uuid import UUID
 from app.domain.entities.order_item import OrderItem
+from app.domain.value_objects import Money
 from app.infrastructure.db.models import OrderItemModel
 
 def order_item_entity_to_model(entity: OrderItem, order_id: UUID) -> OrderItemModel:
@@ -17,6 +18,6 @@ def order_item_model_to_entity(model: OrderItemModel) -> OrderItem:
         id=model.id,
         dish_id=model.dish_id,
         name=model.name,
-        price=model.price,
+        price=Money(amount=model.price),
         quantity=model.quantity
     )

@@ -5,11 +5,19 @@ from pydantic import Field
 class Settings(BaseSettings):
     app_name: str = 'Order Service'
 
-    db_host: str = Field(..., env="ORDER_DB_HOST")
-    db_user: str = Field(..., env="ORDER_DB_USER")
-    db_port: int = Field(..., env="ORDER_DB_PORT")
-    db_pass: str = Field(..., env="ORDER_DB_PASS")
-    db_name: str = Field(..., env="ORDER_DB_NAME")
+    db_host: str = Field(..., env="DB_HOST")
+    db_user: str = Field(..., env="DB_USER")
+    db_port: int = Field(..., env="DB_PORT")
+    db_pass: str = Field(..., env="DB_PASS")
+    db_name: str = Field(..., env="DB_NAME")
+
+    restaurant_service_url: str = "http://restaurant-service:8000/"
+
+    services_timeout: int = 5
+    service_max_retries: int = 3
+
+    jwt_secret_key: str
+    jwt_algorithm: str
 
     class Config:
         env_file = ".env"
