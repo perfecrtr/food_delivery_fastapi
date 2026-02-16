@@ -9,8 +9,10 @@ from datetime import datetime
 
 from app.domain.entities.order import Order, OrderItem, OrderStatusEnum, OrderStatus
 from app.domain.value_objects import Money, Address
+from app.domain.events import OrderCreatedEvent
 from app.domain.repositories.order_repository import OrderRepository
-from app.domain.services.restaurant_service import RestaurantService, ValidatedItem, ValidationResult
+from app.domain.services.restaurant_service import RestaurantService
+from app.domain.services.event_producer import EventProducer
 
 @dataclass
 class CreateOrderCommand:
@@ -25,10 +27,12 @@ class CreateOrderHandler:
     def __init__(
         self,
         repo: OrderRepository,
-        restaurant_service: RestaurantService
+        restaurant_service: RestaurantService,
+        event_producer: EventProducer
     ):
         self.repo = repo
         self.restaurant_service = restaurant_service
+        self.event_producer = event_producer
 
     async def handle(self, command: CreateOrderCommand) -> Order:
 
@@ -74,5 +78,15 @@ class CreateOrderHandler:
         )
 
         saved_order = await self.repo.create(order)
+
+        event = OrderCreatedEvent(
+            order_id=saved_order.id,
+            user_id=saved_order.user_id,
+            restaurant_id=saved_order.restaurant_id,
+            total_price=saved_order.total_price.amount,
+            occurred_at=datetime.utcnow(),
+        )
+
+        await self.event_producer.publish(topic="order.created", event=event)
 
         return saved_order

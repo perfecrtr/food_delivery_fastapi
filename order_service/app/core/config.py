@@ -19,6 +19,20 @@ class Settings(BaseSettings):
     jwt_secret_key: str
     jwt_algorithm: str
 
+    redis_host: str
+    redis_port: int
+    redis_password: str
+    redis_db: int
+    redis_ttl: int
+
+    KAFKA_BOOTSTRAP_SERVERS: str 
+    KAFKA_CLIENT_ID: str
+    
+    KAFKA_PRODUCER_ACKS: str
+    KAFKA_PRODUCER_RETRIES: int
+    KAFKA_PRODUCER_MAX_BLOCK_MS: int
+    KAFKA_PRODUCER_COMPRESSION_TYPE: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

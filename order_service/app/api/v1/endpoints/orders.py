@@ -1,5 +1,5 @@
-
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, Request, HTTPException
+import hashlib
 from app.api.v1.schemas.orders import (
     CreateOrderRequest,
     CreateOrderResponse,
@@ -13,11 +13,13 @@ from app.api.v1.schemas.orders import (
 from app.application.commands.create_order import CreateOrderCommand, CreateOrderHandler
 from app.application.commands.cancel_order import CancelOrderCommand, CancelOrderHandler
 from app.application.queries.get_orders import GetOrdersQuery, GetOrdersHandler
+from app.domain.services.idempotency_service import IdempotencyService
 from app.core.dependecies import(
     get_current_user_id,
     get_order_creating_handler,
     get_order_getting_handler,
-    get_order_cancelling_handler
+    get_order_cancelling_handler,
+     get_idempotency_service
 )
 from uuid import UUID
 
@@ -25,30 +27,47 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 
 @router.post("/", response_model=CreateOrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
+    request_head: Request,
     request: CreateOrderRequest,
     current_user_id: int = Depends(get_current_user_id),
-    handler: CreateOrderHandler = Depends(get_order_creating_handler)
+    handler: CreateOrderHandler = Depends(get_order_creating_handler),
+    idemp: IdempotencyService = Depends(get_idempotency_service)
 ) -> CreateOrderResponse:
     
-    command = CreateOrderCommand(
-        restaurant_id=request.restaurant_id,
-        user_id=current_user_id,
-        delivery_address=request.delivery_address.model_dump(),
-        items=[
-            {"dish_id": item.dish_id,
-             "quantity": item.quantity
-            }
-            for item in request.items
-        ]
+    idempotency_key = request_head.headers.get("Idempotency-Key")
+    if not idempotency_key:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Idempotency-Key header is required")
+    
+    payload = request.model_dump_json()
+    fingerprint_src = f"{request_head.method}:{request_head.url.path}:{payload}"
+    fingerprint = hashlib.sha256(fingerprint_src.encode()).hexdigest()
+    
+    async def action() -> dict:
+        command = CreateOrderCommand(
+            restaurant_id=request.restaurant_id,
+            user_id=current_user_id,
+            delivery_address=request.delivery_address.model_dump(),
+            items=[
+                {"dish_id": item.dish_id, "quantity": item.quantity}
+                for item in request.items
+            ],
+        )
+        result = await handler.handle(command=command)
+
+        return {
+            "id": result.id,
+            "status": result.status.value,
+            "total_price": result.total_price.amount,
+            "message": "Order created successfully",
+        }
+
+    data = await idemp.run(
+        key=idempotency_key,
+        fingerprint=fingerprint,
+        action=action,
     )
 
-    result = await handler.handle(command=command)
-
-    return CreateOrderResponse(
-        id=result.id,
-        status=result.status.value,
-        total_price=result.total_price.amount
-    )
+    return CreateOrderResponse(**data)
 
 @router.get("/my", response_model=GetOrdersResponse, status_code=status.HTTP_200_OK)
 async def get_user_orders(

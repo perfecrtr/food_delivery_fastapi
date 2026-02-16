@@ -208,6 +208,10 @@ services:
     depends_on:
       postgres-order:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8004:8000"
 
