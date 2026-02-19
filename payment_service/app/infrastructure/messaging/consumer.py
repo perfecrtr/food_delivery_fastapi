@@ -8,8 +8,8 @@ from decimal import Decimal
 from aiokafka import AIOKafkaConsumer
 
 from app.core.config import settings
-from app.application.handlers.payment_events import PaymentEventsHandler
-from app.domain.events import PaymentProcessedEvent
+from app.application.handlers.order_events import OrderEventsHandler
+from app.domain.events import OrderCreatedEvent
 from app.domain.enums import PaymentMethodType
 from app.domain.services.event_consumer import EventConsumer
 
@@ -17,20 +17,20 @@ class KafkaEventConsumer(EventConsumer):
     def __init__(
         self,
         *,
-        payment_events_handler: PaymentEventsHandler,
-        group_id: str = "order-service-consumer",
+        order_events_handler: OrderEventsHandler,
+        group_id: str = "payment-service-consumer",
         auto_offset_reset: str = "earliest",
         enable_auto_commit: bool = True,
         loop: Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
         self._loop = loop or asyncio.get_event_loop()
-        self._payment_events_handler = payment_events_handler
+        self._order_events_handler = order_events_handler
 
         self._consumer = AIOKafkaConsumer(
-            "payment.processed",
+            "order.created",
             loop=self._loop,
-            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-            client_id=settings.KAFKA_CLIENT_ID,
+            bootstrap_servers=settings.kafka_bootstrap_servers,
+            client_id=settings.kafka_client_id,
             group_id=group_id,
             enable_auto_commit=enable_auto_commit,
             auto_offset_reset=auto_offset_reset,
@@ -76,22 +76,22 @@ class KafkaEventConsumer(EventConsumer):
             await self.stop()
 
     async def _handle_message(self, topic: str, payload: Dict[str, Any], raw_message: Any) -> None:
-        if topic == "payment.processed":
-            await self.handle_payment_processed(payload=payload)
+        if topic == "order.created":
+            await self.handle_order_created(payload=payload)
         else:
             pass
 
-    async def handle_payment_processed(self, payload):
-        event = PaymentProcessedEvent(
-            payment_id=UUID(payload["payment_id"]),
+    async def handle_order_created(self, payload: Dict[str, Any]):
+        event = OrderCreatedEvent(
             order_id=UUID(payload["order_id"]),
             user_id=int(payload["user_id"]),
-            amount=Decimal(payload["amount"]),
-            result=str(payload["result"]),
+            restaurant_id=UUID(payload["restaurant_id"]),
+            total_price=Decimal(payload["total_price"]),
+            payment_method=PaymentMethodType(payload["payment_method"]),
             occurred_at=datetime.fromisoformat(payload["occurred_at"]),
         )
 
-        await self._payment_events_handler.handle_payment_processed(event=event)
+        await self._order_events_handler.handle_order_created(event=event)
         
 
     

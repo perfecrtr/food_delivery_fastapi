@@ -20,6 +20,7 @@ class CreateOrderCommand:
     user_id: int
     delivery_address: dict
     items: List[Dict[str, Any]]
+    payment_method: str
     
 
 class CreateOrderHandler:
@@ -84,6 +85,7 @@ class CreateOrderHandler:
             user_id=saved_order.user_id,
             restaurant_id=saved_order.restaurant_id,
             total_price=saved_order.total_price.amount,
+            payment_method=command.payment_method,
             occurred_at=datetime.utcnow(),
         )
 

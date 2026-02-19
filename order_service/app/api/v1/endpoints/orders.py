@@ -51,6 +51,7 @@ async def create_order(
                 {"dish_id": item.dish_id, "quantity": item.quantity}
                 for item in request.items
             ],
+            payment_method=request.payment_method
         )
         result = await handler.handle(command=command)
 

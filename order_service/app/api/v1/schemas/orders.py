@@ -25,6 +25,7 @@ class CreateOrderRequest(BaseModel):
     restaurant_id: UUID4
     items: List[OrderItemRequest]
     delivery_address: AddressRequest
+    payment_method: str
     model_config = ConfigDict(
         json_schema_extra={
             "example": {

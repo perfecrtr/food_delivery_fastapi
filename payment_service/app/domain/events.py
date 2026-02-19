@@ -3,7 +3,7 @@ from uuid import UUID
 from decimal import Decimal
 from datetime import datetime
 
-from app.domain.enums import PaymentMethodType
+from app.domain.enums import PaymentMethodType, PaymentStatus
 
 @dataclass(frozen=True)
 class OrderCreatedEvent:
@@ -20,12 +20,5 @@ class PaymentProcessedEvent:
     order_id: UUID
     user_id: int
     amount: Decimal
-    result: str
-    occurred_at: datetime
-
-@dataclass(frozen=True)
-class OrderPaidEvent:
-    order_id: UUID
-    delivery_address: str
-    user_id: int
+    result: PaymentStatus
     occurred_at: datetime
