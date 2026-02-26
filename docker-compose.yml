@@ -93,6 +93,25 @@ services:
     networks:
       - food-delivery-network
 
+  postgres-delivery:
+    image: postgres:15-alpine
+    container_name: delivery-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=delivery_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_delivery_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - food-delivery-network
+
   redis:
     image: redis:7-alpine
     container_name: auth-redis
@@ -268,6 +287,28 @@ services:
       - food-delivery-network
     restart: unless-stopped
 
+  delivery-service:
+    build: ./delivery_service
+    container_name: delivery-service
+    ports:
+      - "8006:8000"
+
+    depends_on:
+      postgres-delivery:
+        condition: service_healthy
+    
+    env_file:
+      - ./delivery_service/.env
+
+    volumes:
+      - ./delivery_service:/app:rw
+    command: 
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    networks:
+      - food-delivery-network
+    restart: unless-stopped
+
 networks:
   food-delivery-network:
     driver: bridge
@@ -278,4 +319,5 @@ volumes:
   postgres_restaurant_data:
   postgres_order_data:
   postgres_payment_data:
+  postgres_delivery_data:
   redis_data:

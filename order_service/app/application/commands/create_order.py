@@ -68,12 +68,22 @@ class CreateOrderHandler:
             floor=command.delivery_address.get("floor", "")
         )
 
+        restaurant_address = Address(
+            city=validation_result.restaurant_address.get("city", ""),
+            street=validation_result.restaurant_address.get("street", ""),
+            house_number=validation_result.restaurant_address.get("house_number", ""),
+            apartment=validation_result.restaurant_address.get("apartment", ""),
+            entrance=validation_result.restaurant_address.get("building", ""),
+            floor=validation_result.restaurant_address.get("floor", ""),
+        )
+
         order = Order(
             id=uuid4(),
             restaurant_id=command.restaurant_id,
             user_id=command.user_id,
             items=order_items,
             delivery_address=delivery_address,
+            restaurant_address=restaurant_address,
             total_price=Money(amount=0.0),
             status=OrderStatus(OrderStatusEnum.PENDING)
         )

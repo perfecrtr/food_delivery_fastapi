@@ -14,6 +14,7 @@ from app.infrastructure.db.repositories.order_repository import SQLAlchemyOrderR
 from app.infrastructure.messaging.producer import KafkaEventProducer
 from app.infrastructure.messaging.consumer import KafkaEventConsumer
 from app.application.handlers.payment_events import PaymentEventsHandler
+from app.application.handlers.delivery_events import DeliveryEventsHandler
 
 def custom_openapi():
     if app.openapi_schema:
@@ -66,9 +67,11 @@ async def lifespan(app: FastAPI):
     app.state.event_producer = event_producer
 
     payment_events_handler = PaymentEventsHandler(order_repo, event_producer=event_producer)
-    kafka_consumer = KafkaEventConsumer(payment_events_handler=payment_events_handler)
+    delivery_events_handler = DeliveryEventsHandler(repo=order_repo)
+    kafka_consumer = KafkaEventConsumer(payment_events_handler=payment_events_handler, delivery_events_handler=delivery_events_handler)
 
     app.state.payment_events_handler = payment_events_handler
+    app.state.delivery_events_handler = delivery_events_handler
     app.state.kafka_consumer = kafka_consumer
 
     consumer_task = asyncio.create_task(kafka_consumer.run_forever())

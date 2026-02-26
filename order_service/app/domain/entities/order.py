@@ -14,6 +14,7 @@ class Order:
     user_id: int
     items: List[OrderItem]
     delivery_address: Address
+    restaurant_address: Address
     total_price: Money
     status: OrderStatus
     created_at: datetime = field(default_factory=datetime.utcnow)

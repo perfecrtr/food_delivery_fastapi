@@ -58,6 +58,7 @@ async def get_restaurant_menu_getting_handler(
     return GetRestaurantMenuHandler(repo)
 
 async def get_order_validating_handler(
-    repo: MenuRepository = Depends(get_menu_repository),
+    menu_repo: MenuRepository = Depends(get_menu_repository),
+    restaurant_repo: RestaurantRepository = Depends(get_restaurant_repository),
 ) -> ValidateOrderHandler:
-    return ValidateOrderHandler(repo=repo)
+    return ValidateOrderHandler(menu_repo=menu_repo, restaurant_repo=restaurant_repo)

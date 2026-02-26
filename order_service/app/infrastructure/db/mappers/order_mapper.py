@@ -20,6 +20,14 @@ def order_entity_to_model(entity: Order) -> OrderModel:
             "entrance": entity.delivery_address.entrance,
             "floor": entity.delivery_address.floor
         },
+        restaurant_address={
+            "city": entity.restaurant_address.city,
+            "street": entity.restaurant_address.street,
+            "house_number": entity.restaurant_address.house_number,
+            "apartment": entity.restaurant_address.apartment,
+            "entrance": entity.restaurant_address.entrance,
+            "floor": entity.restaurant_address.floor
+        },
         total_price=entity.total_price.amount,
         status=entity.status.value,
         created_at=entity.created_at,
@@ -30,13 +38,22 @@ def order_entity_to_model(entity: Order) -> OrderModel:
 
 def order_model_to_entity(model: OrderModel, include_items: bool = True) -> Order:
 
-    address = Address(
+    delivery_address = Address(
         city=model.delivery_address.get("city", ""),
         street=model.delivery_address.get("street", ""),
         house_number=model.delivery_address.get("house_number", ""),
         apartment=model.delivery_address.get("apartment", ""),
         entrance=model.delivery_address.get("entrance", ""),
         floor=model.delivery_address.get("floor", "")
+    )
+
+    restaurant_address = Address(
+        city=model.restaurant_address.get("city", ""),
+        street=model.restaurant_address.get("street", ""),
+        house_number=model.restaurant_address.get("house_number", ""),
+        apartment=model.restaurant_address.get("apartment", ""),
+        entrance=model.restaurant_address.get("entrance", ""),
+        floor=model.restaurant_address.get("floor", "")
     )
 
     status = OrderStatus(value=OrderStatusEnum(model.status), changed_at=model.updated_at)
@@ -55,7 +72,8 @@ def order_model_to_entity(model: OrderModel, include_items: bool = True) -> Orde
         restaurant_id=model.restaurant_id,
         user_id=model.user_id,
         items=items,
-        delivery_address=address,
+        delivery_address=delivery_address,
+        restaurant_address=restaurant_address,
         total_price=price,
         status=status,
         created_at=model.created_at,

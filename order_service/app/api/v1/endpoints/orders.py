@@ -90,6 +90,7 @@ async def get_user_orders(
             OrderInfo(
                 id=order.id,
                 delivery_address=order.delivery_address.full_address,
+                restaurant_address=order.restaurant_address.full_address,
                 total_price=order.total_price.amount,
                 status=order.status.value,
                 items= [

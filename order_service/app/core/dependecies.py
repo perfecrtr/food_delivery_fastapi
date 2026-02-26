@@ -44,9 +44,10 @@ async def get_order_getting_handler(
     return GetOrdersHandler(repo=repo)
 
 async def get_order_cancelling_handler(
-    repo: SQLAlchemyOrderRepository = Depends(get_order_repository)
+    repo: SQLAlchemyOrderRepository = Depends(get_order_repository),
+    producer: KafkaEventProducer = Depends(get_event_producer)
 ) -> CancelOrderHandler:
-    return CancelOrderHandler(repo=repo)
+    return CancelOrderHandler(repo=repo, producer=producer)
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security)

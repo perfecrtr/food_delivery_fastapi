@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.domain.entities.restaurant import Restaurant
 from app.domain.repositories.restaurant_repository import RestaurantRepository
+from app.domain.value_objects import Address
 from app.infrastructure.db.models import RestaurantModel
 from app.infrastructure.db.mappers.restaurant_mapper import restaurant_model_to_entity, restaurant_entity_to_model
 
@@ -35,6 +36,16 @@ class SQLAlchemyRestaurantRepository(RestaurantRepository):
         model = result.scalar_one_or_none()
 
         return restaurant_model_to_entity(model) if model else None
+    
+    async def get_restaurant_address(self, restaurant_id: UUID) -> Address | None:
+        stmt = select(RestaurantModel.address).where(RestaurantModel.id == restaurant_id)
+        result = await self.db.execute(stmt)
+        address = result.scalar_one_or_none()
+
+        if not address:
+            return None
+
+        return Address.from_model(address_string=address)
 
     async def update(self, restaurant_id: UUID, **kwargs) -> Restaurant | None:
         stmt = select(RestaurantModel).where(RestaurantModel.id == restaurant_id)

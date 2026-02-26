@@ -45,14 +45,14 @@ class OrderEventsHandler:
             idempotency_key=payment.id,
         )
 
-        payment = await self.repo.update_status(payment_id=payment.id, status=PaymentStatus.PROCESSING)
+        payment = await self.repo.update_status(payment_id=payment.id, status=PaymentStatus.PROCESSING, transaction_id=None)
 
         gateway_response: PaymentGatewayResponse = await self.gateway.charge(gateway_request)
 
         new_status = (
             PaymentStatus.COMPLETED if gateway_response.success else PaymentStatus.FAILED
         )
-        payment = await self.repo.update_status(payment_id=payment.id, status=new_status)
+        payment = await self.repo.update_status(payment_id=payment.id, status=new_status, transaction_id=gateway_response.transaction_id)
 
         event = PaymentProcessedEvent(
             payment_id=payment.id,

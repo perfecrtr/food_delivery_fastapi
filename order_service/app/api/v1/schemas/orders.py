@@ -70,6 +70,7 @@ class OrderInfo(BaseModel):
     id: UUID4
     items: List[OrderItemInfo]
     delivery_address: str
+    restaurant_address: str
     total_price: float
     status: str
 

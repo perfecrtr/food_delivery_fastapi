@@ -9,7 +9,8 @@ from aiokafka import AIOKafkaConsumer
 
 from app.core.config import settings
 from app.application.handlers.payment_events import PaymentEventsHandler
-from app.domain.events import PaymentProcessedEvent
+from app.application.handlers.delivery_events import DeliveryEventsHandler
+from app.domain.events import PaymentProcessedEvent, DeliveryStartedEvent, DeliveryCompletedEvent
 from app.domain.enums import PaymentMethodType
 from app.domain.services.event_consumer import EventConsumer
 
@@ -18,6 +19,7 @@ class KafkaEventConsumer(EventConsumer):
         self,
         *,
         payment_events_handler: PaymentEventsHandler,
+        delivery_events_handler: DeliveryEventsHandler,
         group_id: str = "order-service-consumer",
         auto_offset_reset: str = "earliest",
         enable_auto_commit: bool = True,
@@ -25,9 +27,12 @@ class KafkaEventConsumer(EventConsumer):
     ) -> None:
         self._loop = loop or asyncio.get_event_loop()
         self._payment_events_handler = payment_events_handler
+        self._delivery_events_handler = delivery_events_handler
 
         self._consumer = AIOKafkaConsumer(
             "payment.processed",
+            "delivery.started",
+            "delivery.completed",
             loop=self._loop,
             bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
             client_id=settings.KAFKA_CLIENT_ID,
@@ -78,6 +83,10 @@ class KafkaEventConsumer(EventConsumer):
     async def _handle_message(self, topic: str, payload: Dict[str, Any], raw_message: Any) -> None:
         if topic == "payment.processed":
             await self.handle_payment_processed(payload=payload)
+        elif topic == "delivery.started":
+            await self.handle_delivery_started(payload=payload)
+        elif topic == "delivery.completed":
+            await self.handle_delivery_completed(payload=payload)
         else:
             pass
 
@@ -92,6 +101,23 @@ class KafkaEventConsumer(EventConsumer):
         )
 
         await self._payment_events_handler.handle_payment_processed(event=event)
+
+    async def handle_delivery_started(self, payload):
+        event = DeliveryStartedEvent(
+            order_id=UUID(payload["order_id"]),
+            occurred_at=datetime.fromisoformat(payload["occurred_at"])
+        )
+
+        await self._delivery_events_handler.handle_delivery_started(event=event)
+
+    async def handle_delivery_completed(self, payload):
+        event = DeliveryCompletedEvent(
+            order_id=UUID(payload["order_id"]),
+            occurred_at=datetime.fromisoformat(payload["occurred_at"])
+        )
+
+        await self._delivery_events_handler.handle_delivery_completed(event=event)
+
         
 
     

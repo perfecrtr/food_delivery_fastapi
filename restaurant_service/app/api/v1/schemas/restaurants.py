@@ -4,7 +4,7 @@
 
 from pydantic import BaseModel, Field, UUID4, ConfigDict
 from uuid import UUID
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from enum import Enum
 from app.api.v1.schemas.dishes import DishInfo
 
@@ -114,6 +114,7 @@ class ValidatedItemResponse(BaseModel):
     quantity: int
 
 class ValidateOrderResponse(BaseModel):
+    restaurant_address: Dict[str, Any]
     is_valid: bool
     validated_items: List[ValidatedItemResponse]
     errors: List

@@ -20,5 +20,5 @@ class PaymentRepository(ABC):
         pass
 
     @abstractmethod
-    async def update_status(self, payment_id: UUID, status: PaymentStatus) -> Optional[Payment]:
+    async def update_status(self, payment_id: UUID, status: PaymentStatus, transaction_id: Optional[str]) -> Optional[Payment]:
         pass

@@ -159,6 +159,7 @@ async def validate_order(
     
     result = await handler.handle(command)
     return ValidateOrderResponse(
+        restaurant_address=result.restaurant_address,
         is_valid=result.is_valid,
         validated_items=result.validated_items,
         errors=result.errors

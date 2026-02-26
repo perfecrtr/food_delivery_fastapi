@@ -12,6 +12,7 @@ class ValidatedItem:
 
 @dataclass
 class ValidationResult:
+    restaurant_address: Dict[str, Any]
     is_valid: bool
     validated_items: List[ValidatedItem] 
     errors: List[Dict[str, Any]]

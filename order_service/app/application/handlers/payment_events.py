@@ -1,4 +1,5 @@
 from uuid import uuid4
+from dataclasses import asdict
 from datetime import datetime
 
 from app.domain.repositories.order_repository import OrderRepository
@@ -26,8 +27,8 @@ class PaymentEventsHandler:
             status = OrderStatus(value=OrderStatusEnum.PAID, changed_at=event.occurred_at)
             order_paid_event = OrderPaidEvent(
                 order_id=order.id,
-                delivery_address=order.delivery_address.full_address,
-                user_id=order.user_id,
+                delivery_address=asdict(order.delivery_address),
+                restaurant_address=asdict(order.restaurant_address),
                 occurred_at=event.occurred_at
             )
             await self.event_producer.publish(topic="order.paid", event=order_paid_event)

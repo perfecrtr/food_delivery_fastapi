@@ -66,6 +66,7 @@ class RestaurantServiceHttpAdapter(RestaurantService):
                 return self._parse_success_response(response.json())
             else: 
                 return ValidationResult(
+                    restaurant_address=None,
                     is_valid=False,
                     validated_items=[],
                     errors=[{
@@ -76,6 +77,7 @@ class RestaurantServiceHttpAdapter(RestaurantService):
             
         except httpx.TimeoutException:
             return ValidationResult(
+                restaurant_address=None,
                 is_valid=False,
                 validated_items=[],
                 errors=[{
@@ -85,6 +87,7 @@ class RestaurantServiceHttpAdapter(RestaurantService):
             )
         except Exception as e:
             return ValidationResult(
+                restaurant_address=None,
                 is_valid=False,
                 validated_items=[],
                 errors=[{
@@ -105,6 +108,7 @@ class RestaurantServiceHttpAdapter(RestaurantService):
             ))
         
         return ValidationResult(
+            restaurant_address=data.get("restaurant_address"),
             is_valid=data.get("is_valid", False),
             validated_items=validated_items,
             errors=data.get("errors", [])

@@ -2,12 +2,13 @@
     Create Restaurant Command and Handler
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 from uuid import uuid4, UUID
 from datetime import datetime
 from app.domain.entities.dish import Dish
 from app.domain.repositories.menu_repository import MenuRepository
+from app.domain.repositories.restaurant_repository import RestaurantRepository
 
 @dataclass
 class ValidateOrderCommand:
@@ -16,6 +17,7 @@ class ValidateOrderCommand:
 
 @dataclass
 class ValidateOrderResult:
+    restaurant_address: Dict[str, Any]
     is_valid: bool
     validated_items: List[Dict[str, Any]]
     errors: List[Dict[str, Any]]
@@ -24,16 +26,21 @@ class ValidateOrderHandler:
 
     def __init__(
         self,
-        repo: MenuRepository
+        menu_repo: MenuRepository,
+        restaurant_repo: RestaurantRepository
     ):
-        self.repo = repo
+        self.menu_repo = menu_repo
+        self.restaurant_repo = restaurant_repo
 
     async def handle(self, command: ValidateOrderCommand) -> ValidateOrderResult:
 
-        result = await self.repo.get_restaurant_menu(restaurant_id=command.restaurant_id)
+        address = await self.restaurant_repo.get_restaurant_address(restaurant_id=command.restaurant_id)
+        address_dict = asdict(address)
+        result = await self.menu_repo.get_restaurant_menu(restaurant_id=command.restaurant_id)
 
         if not result:
             return ValidateOrderResult(
+                restaurant_address=address_dict,
                 is_valid=False,
                 validated_items=[],
                 errors=[{
@@ -73,12 +80,14 @@ class ValidateOrderHandler:
         
         if errors:
             return ValidateOrderResult(
+                restaurant_address=address_dict,
                 is_valid=False,
                 validated_items=validated_items,
                 errors=errors
             )
 
         return ValidateOrderResult(
+            restaurant_address=address_dict,
             is_valid=True,
             validated_items=validated_items,
             errors=[],

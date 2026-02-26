@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from typing import List
 from app.domain.entities.restaurant import Restaurant
+from app.domain.value_objects.address import Address
 
 class RestaurantRepository(ABC):
 
@@ -15,6 +16,10 @@ class RestaurantRepository(ABC):
 
     @abstractmethod
     async def get_by_id(self, restaurant_id: UUID) -> Restaurant | None:
+        pass
+
+    @abstractmethod
+    async def get_restaurant_address(self, restaurant_id: UUID) -> Address | None:
         pass
 
     @abstractmethod

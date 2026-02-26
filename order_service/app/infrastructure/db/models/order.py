@@ -16,6 +16,7 @@ class OrderModel(Base):
     restaurant_id: Mapped[UUID] = mapped_column(Uuid, nullable=False, index=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     delivery_address: Mapped[dict] = mapped_column(JSON)
+    restaurant_address: Mapped[dict] = mapped_column(JSON)
     total_price: Mapped[Decimal] = mapped_column(DECIMAL(10,2), nullable=False)
     status: Mapped[str] = mapped_column(String(20))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

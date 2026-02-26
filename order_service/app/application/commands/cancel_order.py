@@ -3,6 +3,8 @@ from uuid import UUID
 from datetime import datetime
 
 from app.domain.repositories.order_repository import OrderRepository
+from app.domain.services.event_producer import EventProducer
+from app.domain.events import OrderCancelledEvent
 
 @dataclass
 class CancelOrderCommand:
@@ -19,9 +21,11 @@ class CancelOrderHandler:
 
     def __init__(
         self,
-        repo: OrderRepository
+        repo: OrderRepository,
+        producer: EventProducer
     ):
         self.repo = repo
+        self.producer = producer
 
     async def handle(self, command: CancelOrderCommand):
 
@@ -39,6 +43,13 @@ class CancelOrderHandler:
             raise ValueError(str(e))
         
         updated_order = await self.repo.update(order)
+
+        event = OrderCancelledEvent(
+            order_id=updated_order.id,
+            occurred_at=updated_order.updated_at,
+        )
+
+        await self.producer.publish(topic="order.cancelled", event=event)
 
         return CancelOrderResult(
             order_id=updated_order.id,

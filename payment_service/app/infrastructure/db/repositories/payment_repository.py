@@ -38,7 +38,7 @@ class SQLAlchemyPaymentRepository(PaymentRepository):
         return payment_model_to_entity(payment_model) if payment_model else None
 
 
-    async def update_status(self, payment_id: UUID, status: PaymentStatus) -> Optional[Payment]:
+    async def update_status(self, payment_id: UUID, status: PaymentStatus, transaction_id: Optional[str]) -> Optional[Payment]:
         stmt = select(PaymentModel).where(PaymentModel.id == payment_id)
         result = await self.db.execute(stmt)
         payment_model = result.scalar_one_or_none()
@@ -47,6 +47,7 @@ class SQLAlchemyPaymentRepository(PaymentRepository):
             raise ValueError(f"Payment {payment_id} not found")
         
         payment_model.status = status
+        payment_model.transaction_id = transaction_id
         payment_model.updated_at = datetime.utcnow()
 
         await self.db.commit()
